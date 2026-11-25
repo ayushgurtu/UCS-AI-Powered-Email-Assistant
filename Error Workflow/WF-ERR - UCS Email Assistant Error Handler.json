@@ -1,0 +1,112 @@
+{
+  "name": "WF-ERR - UCS Email Assistant Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "33e1d11d-3c22-486d-b2a9-707ccfe86bb3",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Build a clean error summary from the Error Trigger payload.\nconst e = $json;\nconst wf = e.workflow || {};\nconst ex = e.execution || {};\nconst err = e.trigger?.error || e.execution?.error || {};\n\nconst wfName = wf.name || 'Unknown workflow';\nconst wfId = wf.id || 'n/a';\nconst execId = ex.id || 'n/a';\nconst mode = ex.mode || 'n/a';\nconst lastNode = ex.lastNodeExecuted || err.node?.name || 'n/a';\nconst ts = (ex.startedAt || new Date().toISOString());\n\nlet message = err.message || 'No error message provided';\nconst description = err.description || '';\nlet stack = err.stack || '';\nif (stack.length > 2000) stack = stack.slice(0, 2000) + '\\n...[truncated]';\n\nconst execUrl = ex.url || (ex.id ? `execution ${ex.id}` : 'n/a');\n\nreturn {\n  json: {\n    wfName,\n    wfId,\n    execId,\n    mode,\n    lastNode,\n    ts,\n    message,\n    description,\n    stack,\n    execUrl,\n    subject: `\\u26A0 n8n FAILURE: ${wfName} (exec ${execId})`\n  }\n};"
+      },
+      "id": "1bf46648-9895-42d9-a4e9-096cce5fb2e8",
+      "name": "Build Error Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\nconst esc = (s) => String(s == null ? '' : s)\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nconst html = `\n<div style=\"font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#222;\">\n  <table style=\"border-collapse:collapse;width:100%;max-width:640px;\">\n    <tr><td style=\"background:#EF7C00;color:#fff;padding:12px 16px;font-size:16px;font-weight:bold;border-radius:4px 4px 0 0;\">\n      &#9888; UCS Email Assistant &mdash; Workflow Failure\n    </td></tr>\n    <tr><td style=\"padding:16px;border:1px solid #eee;border-top:none;\">\n      <table style=\"border-collapse:collapse;width:100%;font-size:13px;\">\n        <tr><td style=\"padding:4px 8px;font-weight:bold;width:140px;\">Workflow</td><td style=\"padding:4px 8px;\">${esc(d.wfName)} (id: ${esc(d.wfId)})</td></tr>\n        <tr><td style=\"padding:4px 8px;font-weight:bold;\">Execution ID</td><td style=\"padding:4px 8px;\">${esc(d.execId)}</td></tr>\n        <tr><td style=\"padding:4px 8px;font-weight:bold;\">Mode</td><td style=\"padding:4px 8px;\">${esc(d.mode)}</td></tr>\n        <tr><td style=\"padding:4px 8px;font-weight:bold;\">Last node</td><td style=\"padding:4px 8px;\">${esc(d.lastNode)}</td></tr>\n        <tr><td style=\"padding:4px 8px;font-weight:bold;\">Time</td><td style=\"padding:4px 8px;\">${esc(d.ts)}</td></tr>\n      </table>\n      <p style=\"margin:14px 0 4px;font-weight:bold;\">Description</p>\n      <div style=\"background:#fff6ec;border-left:4px solid #EF7C00;padding:10px;border-radius:0 4px 4px 0;font-size:13px;\">${esc(d.description)}</div>\n      <p style=\"margin:14px 0 4px;font-weight:bold;\">Error message</p>\n      <pre style=\"background:#f6f6f6;padding:10px;border-radius:4px;white-space:pre-wrap;font-size:12px;\">${esc(d.message)}</pre>\n      <p style=\"margin:14px 0 4px;font-weight:bold;\">Stack trace</p>\n      <pre style=\"background:#f6f6f6;padding:10px;border-radius:4px;white-space:pre-wrap;font-size:11px;color:#555;\">${esc(d.stack)}</pre>\n      <p style=\"margin:14px 0 4px;font-size:12px;color:#777;\">Execution: ${esc(d.execUrl)}</p>\n    </td></tr>\n  </table>\n</div>`;\n\nreturn { json: { ...d, html } };"
+      },
+      "id": "cc9a8742-ec78-4f9d-8e47-a9f0192beeb9",
+      "name": "Build HTML Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "toRecipients": "ccev4294@partner.nus.edu.sg",
+        "subject": "={{ $json.subject }}",
+        "bodyContent": "={{ $json.html }}",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "id": "6318ce91-3f28-4e3c-ad69-7a88d5dbe027",
+      "name": "Send Alert Email",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        608,
+        32
+      ],
+      "webhookId": "95bcc34d-121c-4aaa-9ae4-ee96a5039933"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Error Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Error Summary": {
+      "main": [
+        [
+          {
+            "node": "Build HTML Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML Body": {
+      "main": [
+        [
+          {
+            "node": "Send Alert Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "0aa64ee5-7568-4680-b1e2-59de1784f4f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "54b3fc0b89ebb5a8eda839a4141a3886a669482e2ff64cecc2b490c0afdca8c2"
+  },
+  "nodeGroups": [],
+  "id": "xhItDqP3xrYp0IM8",
+  "tags": []
+}

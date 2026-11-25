@@ -1,0 +1,28 @@
+# Secrets - holds N8N_ENCRYPTION_KEY
+.env
+.env.*
+!.env.example
+
+# Local n8n data, if ever bind-mounted instead of using the n8n_data volume
+.n8n/
+n8n_data/
+*.sqlite
+*.sqlite-*
+
+# Credential exports (n8n export:credentials) - contain secrets
+credentials/
+*credentials*.json
+
+# Local compose overrides
+docker-compose.override.yaml
+docker-compose.override.yml
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

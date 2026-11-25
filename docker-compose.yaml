@@ -1,0 +1,87 @@
+# UCS AI-Powered Email Assistant - self-hosted n8n stack
+#
+# Required in a .env file next to this compose file:
+#   N8N_ENCRYPTION_KEY=<long random string, keep it stable - credentials are encrypted with it>
+#
+# Start:            docker compose up -d
+# Import workflows: docker compose --profile import run --rm n8n-import
+#   Imports the error handler (Error Workflow/) and the 6 main workflows, keeping their ids so the
+#   main workflows' errorWorkflow setting resolves. Re-running overwrites workflows with the same id,
+#   so only run it for a first-time setup or when you want to reset to the files in this folder.
+
+x-n8n-environment: &n8n-environment
+  # Database - SQLite file in the n8n_data volume (workflows, credentials, executions, data tables)
+  - DB_TYPE=sqlite
+  - DB_SQLITE_VACUUM_ON_STARTUP=true
+
+  # Security
+  - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:?Set N8N_ENCRYPTION_KEY in .env}
+  - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+
+  # URLs - must match the redirect URI registered for the Outlook / OneDrive / Dropbox OAuth apps
+  - N8N_HOST=${N8N_HOST:-localhost}
+  - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+  - N8N_PORT=5678
+  - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+  - N8N_EDITOR_BASE_URL=${WEBHOOK_URL:-http://localhost:5678/}
+
+  # Schedule triggers (indexer, retention purge) run in this timezone
+  - GENERIC_TIMEZONE=${TIMEZONE:-Asia/Singapore}
+  - TZ=${TIMEZONE:-Asia/Singapore}
+
+  # Code nodes
+  - N8N_RUNNERS_ENABLED=true
+  - NODES_EXCLUDE=[]
+
+  # Email attachments / extracted files go to disk instead of memory
+  - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
+  - N8N_PAYLOAD_SIZE_MAX=64
+
+  # Execution history pruning
+  - EXECUTIONS_DATA_PRUNE=true
+  - EXECUTIONS_DATA_MAX_AGE=336
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:${N8N_VERSION:-latest}
+    container_name: ucs-email-assistant-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment: *n8n-environment
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./:/workflows:ro
+    networks:
+      - n8nnet
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5678/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # One-shot importer - only runs when called with --profile import (see header)
+  n8n-import:
+    image: docker.n8n.io/n8nio/n8n:${N8N_VERSION:-latest}
+    profiles: ["import"]
+    environment: *n8n-environment
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        n8n import:workflow --separate --input="/workflows/Error Workflow" &&
+        n8n import:workflow --separate --input=/workflows
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./:/workflows:ro
+    networks:
+      - n8nnet
+    depends_on:
+      n8n:
+        condition: service_healthy
+
+volumes:
+  n8n_data:
+
+networks:
+  n8nnet:

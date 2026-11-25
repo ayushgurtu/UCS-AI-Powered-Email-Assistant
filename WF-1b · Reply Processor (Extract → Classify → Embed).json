@@ -1,0 +1,3477 @@
+{
+  "name": "WF-1b · Reply Processor (Extract → Classify → Embed)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "dfe05734-79b7-44b4-b728-9f6c23f95f26",
+      "name": "When Executed by Parent",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -3712,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ae2615d0-b0e4-4a0e-995f-ab04df2719a3",
+      "name": "Loop Over Replies",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -3488,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "folderMessage",
+        "folderId": {
+          "__rl": true,
+          "value": "AAMkADY3ODI1MjQwLWI0NjgtNDVmZC1hMzk3LTExNTExZGE3MWE4YgAuAAAAAAAGcm-stAztQqGe0wx7B9GkAQC9rr79--jPQapehbArjLMwAAAAAAEMAAA=",
+          "mode": "list",
+          "cachedResultName": "Inbox"
+        },
+        "limit": 10,
+        "output": "raw",
+        "filtersUI": {
+          "values": {
+            "filters": {
+              "custom": "=receivedDateTime le {{ $json.sentDateTime }} and \nconversationId eq '{{ $json.conversationId }}' and \nfrom/emailAddress/address ne '{{ ($json.from && $json.from.emailAddress && $json.from.emailAddress.address) || '' }}' and \nfrom/emailAddress/address ne '{{ ($json.from && $json.from.emailAddress && $json.from.emailAddress.address) || '' }}' and \nfrom/emailAddress/address ne 'ucs-qualtrics@se.nus.edu.sg' and from/emailAddress/address ne 'nospammail@nus.edu.sg' and \nfrom/emailAddress/address ne 'qualtrics_survey@se.nus.edu.sg' and from/emailAddress/address ne 'UCS@se.nus.edu.sg' and \nfrom/emailAddress/address ne 'maintenance@nus.edu.sg' and \nfrom/emailAddress/address ne 'uhc_health@nus.edu.sg' and \nfrom/emailAddress/address ne 'uhc_wellness@nus.edu.sg'",
+              "hasAttachments": false
+            }
+          }
+        },
+        "options": {}
+      },
+      "id": "841d5e5d-f892-4198-87ec-a244dcd02b9c",
+      "name": "Outlook - Get Inbox Messages",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        -3216,
+        496
+      ],
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "webhookId": "e90320bd-c6fc-44bc-b3ef-be35fb5a8c6d",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "WteKykd6ryTDfALB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d32c22bb-7bdc-4f7f-8d4a-fe7cd43ef876",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "621d5986-fd53-4d2f-96fe-2617156610bb",
+              "name": "conversationId",
+              "type": "string",
+              "value": "={{ $json.conversationId }}"
+            },
+            {
+              "id": "df44bd82-d14a-437c-97f2-18e64e40bd21",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "id": "a6f9f2aa-0e39-4ca6-9772-fb158983721f",
+              "name": "from",
+              "type": "object",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "id": "0c8da040-74f8-4bbe-a6e8-34ed1556ec2e",
+              "name": "receivedDateTime",
+              "type": "string",
+              "value": "={{ $json.receivedDateTime }}"
+            },
+            {
+              "id": "03bcd6a8-ef85-4184-8a26-d2c59fa5e3cb",
+              "name": "sentDateTime",
+              "type": "string",
+              "value": "={{ $json.sentDateTime }}"
+            },
+            {
+              "id": "782fa4c9-87a2-4efa-b2ba-ce065b20037f",
+              "name": "body",
+              "type": "object",
+              "value": "={{ $json.body }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cb1f6cb9-b543-4af3-ad10-e4c88b473c97",
+      "name": "Set - Trim Inbox Msg",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2816,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5fef4f01-4a94-426b-a64e-cdadc813b982",
+              "leftValue": "={{ ![\"ucs-qualtrics@se.nus.edu.sg\", \"nospammail@nus.edu.sg\", \"qualtrics_survey@se.nus.edu.sg\", \"ucs@se.nus.edu.sg\", \"maintenance@nus.edu.sg\", \"uhc_health@nus.edu.sg\", \"uhc_wellness@nus.edu.sg\", \"ucs@nus.edu.sg\"].includes(($json.from && $json.from.emailAddress && $json.from.emailAddress.address || '').toLowerCase()) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "6db64eea-ee86-4f6f-b9ef-35ced1ec69cd",
+              "leftValue": "={{ !/^(automatic reply|auto-?reply|out of office|undeliverable|delivery status notification|delivery has failed|read:|accepted:|declined:|tentative:)/i.test((String($json.subject||'')).trim()) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2d9b8219-86df-46c4-aab8-7b0080ca3040",
+      "name": "Filter - Exclude Own Mailbox",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -2624,
+        496
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ba51b48c-cb97-4b35-9dcd-f705cc2915d3",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "73a0f742-be4e-4d41-94cf-ad1c11954af8",
+      "name": "If Has Inbox Hits",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2384,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "receivedDateTime",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "95b1c357-93f1-42ee-a084-e2cc1e0fa1d8",
+      "name": "Sort - Newest Inbound First",
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        -2160,
+        416
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {},
+      "id": "711da677-9b19-48d2-994d-b35e6c99a552",
+      "name": "Limit - Keep Newest",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1984,
+        416
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pair this sent reply with the incoming email it answered.\n// EMBED the question; carry the reply along as metadata.\n// ($('Loop Over Replies').item.json) rather than from the trigger. Inside a\n// batch-size-1 loop this is a single-item lineage, so no pairedItem blow-up.\nconst reply = $('Loop Over Replies').item.json;\nconst OUR_MAILBOX = ((reply.from && reply.from.emailAddress && reply.from.emailAddress.address) || '').toLowerCase();\nconst replyAt = new Date(reply.sentDateTime || reply.createdDateTime || 0).getTime();\nconst convId = reply.conversationId || '';\n\n// Hard ceiling on how much raw HTML the regex pipeline ever touches per body.\nconst RAW_CAP = 65536;\n\nconst decode = s => String(s || '')\n  .replace(/&nbsp;/gi, ' ')\n  .replace(/&amp;/gi, '&')\n  .replace(/&lt;/gi, '<')\n  .replace(/&gt;/gi, '>')\n  .replace(/&quot;/gi, '\"')\n  .replace(/&#39;/gi, \"'\")\n  .replace(/&#(\\d+);/g, (m, n) => String.fromCharCode(Number(n)))\n  .replace(/&#x([0-9a-f]+);/gi, (m, n) => String.fromCharCode(parseInt(n, 16)));\n\nconst stripBanner = s => String(s || '')\n  .replace(/<table\\b(?:(?!<\\/?table\\b)[\\s\\S])*?External Email(?:(?!<\\/?table\\b)[\\s\\S])*?<\\/table>/gi, ' ');\n\nconst cutHtml = s => {\n  s = String(s || '');\n  const M = [/appendonsend/i, /border-top:\\s*solid/i, /gmail_quote/i, /<blockquote/i];\n  let c = s.length;\n  for (const rx of M) { const m = s.match(rx); if (m && m.index >= 0 && m.index < c) c = m.index; }\n  const lt = s.lastIndexOf('<', c);\n  if (lt >= 0) c = lt;\n  return s.slice(0, c);\n};\n\nconst cutText = s => {\n  s = String(s || '');\n  const M = [/-{2,}\\s*Original Message\\s*-{2,}/i, /\\bOn .{0,160}\\bwrote:/i, /\\bFrom:\\s.{0,120}\\bSent:\\s/i, /\\bGet Outlook for /i];\n  let c = s.length;\n  for (const rx of M) { const m = s.match(rx); if (m && m.index >= 0 && m.index < c) c = m.index; }\n  return s.slice(0, c);\n};\n\nconst strip = h => cutText(\n  decode(\n    stripBanner(cutHtml(String(h || '').slice(0, RAW_CAP)))\n      .replace(/<[^>]+>/g, ' ')\n      .replace(/<\\/?[a-z!][^>]*$/i, ' ')\n  )\n).replace(/\\s+/g, ' ').trim();\n\nconst keepLinks = s => String(s || '').replace(\n  /<a\\b[^>]*\\bhref=[\"']([^\"']+)[\"'][^>]*>([\\s\\S]*?)<\\/a>/gi,\n  (m, href, txt) => txt.replace(/<[^>]+>/g, '').trim() + ' (' + href + ')'\n);\n\nconst stripL = h => cutText(\n  decode(\n    keepLinks(stripBanner(cutHtml(String(h || '').slice(0, RAW_CAP))))\n      .replace(/<[^>]+>/g, ' ')\n      .replace(/<\\/?[a-z!][^>]*$/i, ' ')\n  )\n).replace(/\\s+/g, ' ').trim();\n\n// Display name from the Graph `from` object: { emailAddress: { name, address } }.\n// Often absent, and Outlook frequently fills it with the address itself -- in\n// that case treat it as no name at all rather than storing a duplicate.\nconst dispName = (o) => {\n  const ea = (o && o.emailAddress) || {};\n  const nm = String(ea.name || '').trim();\n  const ad = String(ea.address || '').trim();\n  if (!nm) return '';\n  if (nm.toLowerCase() === ad.toLowerCase()) return '';\n  return nm;\n};\n\n// Candidate questions: SAME conversation, from someone other than us, at/before\n// this reply was sent. Filter on conversationId FIRST so a stray oversized\n// inbox payload is discarded before any heavy work.\nconst inbound = $input.all()\n  .filter(i => ((i.json && i.json.conversationId) || '') === convId)\n  .map(i => i.json)\n  .filter(m => {\n    const f = ((m.from && m.from.emailAddress && m.from.emailAddress.address) || '').toLowerCase();\n    const t = new Date(m.receivedDateTime || m.sentDateTime || 0).getTime();\n    const auto = /^(automatic reply|auto-?reply|out of office|undeliverable|delivery status notification|delivery has failed|read:|accepted:|declined:|tentative:)/i\n      .test(String(m.subject || '').trim());\n    return f && f !== OUR_MAILBOX && t <= replyAt && !auto;\n  })\n  .sort((a, b) => new Date(b.receivedDateTime || 0) - new Date(a.receivedDateTime || 0));\n\n// Unpaired: normalise to the SAME field set as the paired branch so that stage 2\n// never has to reach back for missing keys. reply_text_np is folded into\n// reply_text here (WF-1a deferred this to \"Set - Pair Record (Unpaired)\").\nif (!convId || !inbound.length) {\n  const rBodyNP = stripL((reply.body && reply.body.content));\n  return [{ json: {\n    paired: false,\n    conversationId: convId,\n    question_subject: '',\n    question_from: '',\n    question_received_at: '',\n    text: '',\n    reply_subject: reply.subject || '',\n    reply_text: rBodyNP.slice(0, 8000),\n    reply_sent_at: reply.sentDateTime || '',\n    reply_from: OUR_MAILBOX\n  } }];\n}\n\nconst q = inbound[0];\nconst qBody = strip((q.body && q.body.content));\nconst rBody = stripL((reply.body && reply.body.content));\n\nreturn [{ json: {\n  paired: true,\n  // ---- EMBEDDED TEXT = the incoming question ----\n  text: qBody.slice(0, 8000),\n  // ---- question metadata ----\n  conversationId: convId,\n  question_subject: q.subject || '',\n  question_from: (q.from && q.from.emailAddress && q.from.emailAddress.address) || '',\n  question_from_name: dispName(q.from),\n  question_received_at: q.receivedDateTime || '',\n  // ---- the ANSWER rides along as metadata ----\n  reply_subject: reply.subject || '',\n  reply_text: rBody.slice(0, 8000),\n  reply_sent_at: reply.sentDateTime || '',\n  reply_from: OUR_MAILBOX\n}}];\n"
+      },
+      "id": "b470d2f8-833b-455b-a11c-ce18640cbedf",
+      "name": "Pair Q -> A",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        608
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "759a4cfd-4c0c-485a-99e2-38d4a858d830",
+              "leftValue": "={{ $json.paired }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a03e0dac-ede9-441e-86b1-15453e1b2948",
+      "name": "If Paired",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3232,
+        1184
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unpaired items never reach the extract chain, so their reply body still\n// carries the UCS signature block, NUS classification banners, and mobile-client\n// footers. Apply the same deterministic post-clean that \"Merge Bodies\" applies\n// to paired items, so the log format is identical across both branches.\n\nconst stripClientFooters = (s) =>\n  String(s || '')\n    .replace(/^\\s*(?:get outlook for (?:ios|android)|sent from my \\w+|sent via .+)\\s*$/gim, '')\n    .replace(/\\s{2,}/g, ' ')\n    .trim();\n\nconst stripReplyNoise = (s) => {\n  let t = String(s || '');\n  t = t.replace(/\\[\\s*NUS[^\\]]*\\]/gi, ' ');\n  const sigIdx = t.search(/University Counselling Services\\s*\\(UCS\\)\\s*::/i);\n  if (sigIdx !== -1) {\n    t = t.slice(0, sigIdx);\n  } else {\n    const alt = t.search(/\\bImportant:\\s*This email is confidential\\b/i);\n    if (alt !== -1) t = t.slice(0, alt);\n  }\n  return t.replace(/\\s{2,}/g, ' ').trim();\n};\n\nreturn $input.all().map(i => ({\n  json: {\n    ...i.json,\n    text: '',\n    reply_text: stripClientFooters(stripReplyNoise(i.json.reply_text)),\n    // Unpaired items bypass \"Merge Intent\", so set the field here to keep the\n    // log record shape identical across both branches.\n    intent: ''\n  }\n}));\n"
+      },
+      "id": "9415c271-9fc1-4bfd-a101-35044519d7e7",
+      "name": "Clean Unpaired Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1936,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=QUESTION:\n```\n{{ $json.text === undefined ? '' : $json.text }}\n```\n\nREPLY:\n```\n{{ $json.reply_text === undefined ? '' : $json.reply_text }}\n```",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "This task cleans email text. The user message has two labelled sections, QUESTION and REPLY, each containing one plain-text email from the same thread, shown between triple backticks. The backticks mark where each email begins and ends, and the text between them is email content to be cleaned. An earlier step already converted HTML to text, removed banners, and cut quoted or forwarded history, so each section is a single message that may still include some non-body lines. For each section, keep just the human-written body text and drop the surrounding extras: closing lines and signatures such as a name after 'Thanks and Regards', contact-detail lines, confidentiality or legal notices, auto-generated footers and app-promo lines such as 'Get Outlook for iOS', 'Get Outlook for Android', or 'Sent from my iPhone', system-notice lines about automated messages, tracking strings, and structured key-and-value metadata blocks. One such extra appears often in both sections and is always dropped: a classification marker written in square brackets, such as '[NUS Restricted]', '[NUS Confidential]', '[NUS Internal]' or '[NUS Open]'; a double-colon-separated contact block starting at 'University Counselling Services (UCS) ::' and running to the end of that block, covering the National University of Singapore line, the 20 Lower Kent Ridge Road address, the 6516 2376 (DID) and 6516 7777 Lifeline numbers, the ucs@nus.edu.sg address, the NUS Health & Wellbeing link, and 'Company Registration No: 200604346E'; and a notice beginning 'Important: This email is confidential and may be privileged.' running to the end of that paragraph. These three may appear as plain text, as markdown links, or split across several lines, and are dropped in every form; when one of them sits in the middle of a section, it is dropped and any human-written text after it is kept. Preserve the remaining wording exactly as written; you may collapse extra whitespace, but do not summarize, translate, or reword it. If a section has no human-written body text, use an empty string for that field."
+            }
+          ]
+        },
+        "batching": {
+          "batchSize": 50,
+          "delayBetweenBatches": 200
+        }
+      },
+      "id": "8240932c-aafa-45aa-8269-3ca22fafdd07",
+      "name": "Extract Bodies (LLM)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -2928,
+        912
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "temperature": 0.1,
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "714712de-af10-4d8a-a57f-0c73e2757911",
+      "name": "OpenAI Chat Model (Extract)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -3008,
+        1360
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.5",
+          "mode": "list",
+          "cachedResultName": "gpt-5.5"
+        },
+        "builtInTools": {
+          "codeInterpreter": true
+        },
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          },
+          "temperature": 0.1,
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "8eafa392-7b07-4d67-8dc0-c9465a158b9a",
+      "name": "OpenAI Chat Model (Extract Fallback)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -2816,
+        1360
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"text\": {\n      \"type\": \"string\",\n      \"description\": \"Cleaned QUESTION body; empty string if none.\"\n    },\n    \"reply_text\": {\n      \"type\": \"string\",\n      \"description\": \"Cleaned REPLY body; empty string if none.\"\n    }\n  },\n  \"required\": [\n    \"text\",\n    \"reply_text\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "8d0d8af3-c9f5-44d6-b8a3-4440a116ebd2",
+      "name": "Structured Output Parser (Extract)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -2688,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "265f0ef9-dc04-4a4a-a4c5-3f012cfaf6eb",
+      "name": "OpenAI Chat Model (Extract Auto-Fix)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -2624,
+        1344
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalise the extract chain's output so BOTH the success and error branches\n// emit an identical shape: { output: { text, reply_text } }.\n//\n// The error branch (Azure content_filter, timeout, parser give-up) hands us the\n// original input item with an `error` field and no parsed object. In that case\n// we fall back to the regex-cleaned bodies that Pair Q -> A already produced.\n//\n// Position is preserved 1:1 with the input, which is what makes the downstream\n// combine-by-position merge safe.\n\nconst parseLoose = (src) => {\n  if (src && typeof src === 'object') return src;\n  if (typeof src === 'string') {\n    const s = src.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();\n    try { return JSON.parse(s); } catch (e) { return {}; }\n  }\n  return {};\n};\n\nconst pick = (v, fb) => {\n  const s = (v == null) ? '' : String(v).trim();\n  return s.length ? s : (fb == null ? '' : String(fb));\n};\n\nreturn $input.all().map((item) => {\n  const j = item.json;\n\n  // Success branch: chain + structured parser puts the object under `output`.\n  // Some model/parser combos surface it under `text` or `response` instead.\n  let src = null;\n  if (j.output !== undefined) src = j.output;\n  else if (j.response !== undefined) src = j.response;\n  else if (j.text !== undefined && j.reply_text === undefined) src = j.text;\n\n  const obj = parseLoose(src);\n\n  // Error branch has no usable object -> obj is {} and every pick() falls back.\n  return { json: { output: {\n    text: pick(obj.text, j.text),\n    reply_text: pick(obj.reply_text, j.reply_text)\n  } } };\n});\n"
+      },
+      "id": "99fb113c-8e19-4775-b95a-806a8d7e0e7f",
+      "name": "Normalize Extracted Bodies",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2256,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 0.8
+      },
+      "id": "c8dd44e4-a362-419d-938a-6353ea31a25b",
+      "name": "Delay - Extract",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2528,
+        912
+      ],
+      "webhookId": "a31bca16-cbba-43fe-b11a-c93f2f117380"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "id": "96a5754e-f544-4558-8ef4-2ade29272ec6",
+      "name": "Merge Record + Bodies",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1984,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Attach the LLM's cleaned bodies onto the record, then run the deterministic\n// post-clean. Reads ONLY the item's own json.\n//\n// Items arrive from \"Merge Record + Bodies\" (combine-by-position), so each item\n// carries BOTH the full Pair Q -> A record AND the chain output under `output`.\n// There is no $('...').item reach-back anywhere in this node -- that cross-node\n// pairedItem lineage is what previously forced full-run data into memory and\n// crashed the task runner once the batch size grew past 1.\n//\n// MODE: \"Run Once for All Items\". $json would resolve to the FIRST item only,\n// so we iterate $input.all() explicitly and return an array. Mapping 1:1\n// preserves position, which the downstream \"Merge Record + Intent\"\n// combine-by-position depends on -- never filter here.\n\nconst stripClientFooters = (s) =>\n  String(s || '')\n    .replace(/^\\s*(?:get outlook for (?:ios|android)|sent from my \\w+|sent via .+)\\s*$/gim, '')\n    .replace(/\\s{2,}/g, ' ')\n    .trim();\n\nconst stripReplyNoise = (s) => {\n  let t = String(s || '');\n  // Classification banners like \"[NUS Restricted]\", \"[NUS Confidential]\".\n  t = t.replace(/\\[\\s*NUS[^\\]]*\\]/gi, ' ');\n  // UCS signature/contact/disclaimer block: cut from the marker onward.\n  const sigIdx = t.search(/University Counselling Services\\s*\\(UCS\\)\\s*::/i);\n  if (sigIdx !== -1) {\n    t = t.slice(0, sigIdx);\n  } else {\n    const alt = t.search(/\\bImportant:\\s*This email is confidential\\b/i);\n    if (alt !== -1) t = t.slice(0, alt);\n  }\n  return t.replace(/\\s{2,}/g, ' ').trim();\n};\n\nconst stripSignoff = (s) => {\n  let t = String(s || '');\n  const V = [\n    /\\bYours sincerely\\b/i, /\\bYours faithfully\\b/i, /\\bYours truly\\b/i,\n    /\\bKind regards\\b/i, /\\bBest regards\\b/i, /\\bWarm regards\\b/i,\n    /\\bBest wishes\\b/i, /\\bSincerely\\b/i, /\\bCheers\\b/i,\n    /\\bThanks and Regards\\b/i, /\\bThank you and regards\\b/i,\n  ];\n  let cut = t.length;\n  for (const rx of V) { const m = t.match(rx); if (m && m.index >= 0 && m.index < cut) cut = m.index; }\n  return t.slice(0, cut).trim();\n};\n\nconst pick = (v, fb) => {\n  const s = (v == null ? '' : String(v)).trim();\n  return s.length ? s : (fb || '');\n};\n\nreturn $input.all().map((item) => {\n  const j = item.json;\n  const parsed = (j.output && typeof j.output === 'object') ? j.output : {};\n\n  // Fall back to the original regex-cleaned values if a field came back empty.\n  const text = pick(parsed.text, j.text);\n  const reply_text = pick(parsed.reply_text, j.reply_text);\n\n  const textClean = stripClientFooters(stripSignoff(text));\n  const replyClean = stripClientFooters(stripReplyNoise(reply_text));\n\n  // Drop the transient `output` wrapper so downstream sees a clean record.\n  const { output, ...rest } = j;\n  return { json: { ...rest, text: textClean, reply_text: replyClean } };\n});"
+      },
+      "id": "bf994d6a-3703-495a-9958-202b01747bfa",
+      "name": "Merge Bodies",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1808,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=SUBJECT:\n```\n{{ $json.question_subject === undefined ? '' : $json.question_subject }}\n```\n\nSENDER_ROLE:\n```\n{{ (d => d==='u.nus.edu'||d.endsWith('.u.nus.edu')||d==='u.yale-nus.edu.sg'||d.endsWith('.u.yale-nus.edu.sg')||d==='u.duke.nus.edu'||d.endsWith('.u.duke.nus.edu') ? 'student' : (d==='visitor.nus.edu.sg'||d.endsWith('.visitor.nus.edu.sg')||d==='partner.nus.edu.sg'||d.endsWith('.partner.nus.edu.sg') ? 'visitor' : (d==='nus.edu.sg'||d.endsWith('.nus.edu.sg') ? 'staff' : (d ? 'external' : 'unknown'))))((String($json.question_from||'').toLowerCase().trim().match(/@([^@]+)$/)||[])[1]||'') }}\n```\n\nQUESTION:\n```\n{{ $json.text === undefined ? '' : $json.text }}\n```",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You label an email sent to a University Counselling Services (UCS) front desk with the ONE category that best describes what the sender is asking about.\n\nYou are given three fields, each wrapped in triple backticks:\n- SUBJECT: the subject line. For short thread replies, the intent usually lives here.\n- SENDER_ROLE: one of student, staff, external, visitor (derived from the sender's email domain).\n- QUESTION: the inbound email body you are classifying.\n\nChoose exactly ONE value for `intent` from this fixed set. Each entry also says when it does NOT apply.\n\n- appointment: a counselling appointment or application. It covers these types:\n  - Booking An Appointment: requesting to book an appointment.\n  - Appointment Rescheduling: a student rescheduling their first session (the intake assessment), or a student rescheduling a regular counselling session.\n  - Cancelling: cancelling a booked session.\n  - Counselling Application: applying for counselling or following up on a counselling application.\n  The type is usually named in SUBJECT (e.g. \"Booking an Appointment With UCS\", \"Appointment Rescheduling\", \"Counselling Appt Request for A1234567X\"); when SUBJECT does not name it, read QUESTION. Also includes confirming or following up on a session, short thread replies that carry an appointment forward - supplying a matric number, confirming a proposed time, \"that works\", \"please move it to Wed\" - and the logistics of a booked session: which campus, whether it is online or in person, how early to arrive. The intake assessment is the first counselling session, so it is appointment, not assessment_request.\n- assessment_request: asking for a Fitness to Resume Studies (FTRS) assessment, including supplying the referral or supporting documents for one. Also covers a status enquiry on an FTRS assessment or report already in train - has it been booked, did the student attend, has it been sent. NOT this for the intake assessment - that is appointment.\n- service_clarification: asking what UCS offers, eligibility, fees, confidentiality, how the process works, Intellect services.\n- operational_info: logistics not tied to a specific booking - location, opening hours, contact details, forms, general how-to, or a personal request to be routed to another service (e.g. a UHC medical matter).\n- volunteer_internship: enquiries about volunteering, internships, practicum, placements, or student/peer-helper programmes, sent by the person seeking the placement. NOT this just because the word \"internship\" or \"placement\" appears - if the sender is scheduling their own counselling around an internship, that is appointment; if an external party is offering a talk or service, that is partnership.\n- staff_referral: a staff member or third party writing about a DIFFERENT named student/client who is NOT the sender (SENDER_ROLE is usually staff or external, or a student reporting concern about a peer) - including asking after that student's booking, attendance, or paperwork. NOT this if the sender is the client themselves - a student giving their own matric number, attaching their own referral form, or supplying their partner's details for couple counselling is appointment or assessment_request, even when the subject line contains \"referral\" or another person's matric number.\n- partnership: an external organisation, or its representative, proposing collaboration, an event, a talk, a symposium/workshop, sponsorship, or institutional partnership. NOT this if it is an individual student's coursework/class-project interview or survey request (use service_clarification if they are asking about UCS, otherwise non_actionable), or a personal service request.\n- non_actionable: marketing, mass mailers, manpower/recruitment solicitation, spam, or a reply that carries no forward intent at all (a bare \"thank you\" or acknowledgement). Do NOT use this as a catch-all for short appointment/assessment thread replies - those inherit their thread's intent.\n\nTie-breaks - apply in order when more than one label seems to fit:\n1. If the sender is the subject/client of the message, it is never staff_referral.\n2. A third party asking about a named student takes staff_referral over the topic category, even when the ask is a booking or a report status.\n3. A short reply continuing an existing thread takes that thread's intent (read SUBJECT). An appointment/assessment thread reply is appointment/assessment, not non_actionable.\n4. Scheduling or confirming a time for an FTRS assessment is appointment; the initial request for the FTRS assessment is assessment_request. The intake assessment is always appointment.\n5. If the concrete ask is a time slot, prefer appointment over the topic category.\n\nIf genuinely uncertain and none apply, use non_actionable. Return only the structured object with the single `intent` value.\n\nExamples:\n- SUBJECT: Re: Appointment Request for A0000001A | SENDER_ROLE: student | QUESTION: \"My partner's matriculation number is A0000002B. We are both full-time students.\" -> appointment (sender is the client, not a referral)\n- SUBJECT: Re: FTRS Assessment for A0000003C | SENDER_ROLE: student | QUESTION: \"I have attached the referral form below. Thank you.\" -> assessment_request (own FTRS referral, not staff_referral)\n- SUBJECT: RE: Appointment Rescheduling | SENDER_ROLE: student | QUESTION: \"Hi, my matriculation number is A0000004D. Thank you!\" -> appointment (thread reply carries appointment intent, not non_actionable)\n- SUBJECT: Re: Intake Assessment with UCS | SENDER_ROLE: student | QUESTION: \"I won't know when I can take time off until I start my internship. I'm free every day until then.\" -> appointment (rescheduling the first session; \"internship\" is incidental)\n- SUBJECT: Quick check on Fitness assessment booking | SENDER_ROLE: staff | QUESTION: \"Just checking whether student A0000006F has booked her Fitness Assessment yet.\" -> staff_referral (third party asking after a named student)\n- SUBJECT: Re: Appointment Reminder | SENDER_ROLE: student | QUESTION: \"Is my appointment on 11 August online or in person?\" -> appointment (logistics of a booked session)\n- SUBJECT: Inquiry: Guest Talk on Happy Living | SENDER_ROLE: external | QUESTION: \"I'm a corporate trainer and motivational speaker offering a guest talk.\" -> partnership (external offer, not volunteer_internship)\n- SUBJECT: NUS UCS Discussion Request | SENDER_ROLE: student | QUESTION: \"We're a group doing a class assignment and would like to interview a counsellor.\" -> service_clarification (student coursework, not partnership)\n- SUBJECT: UHC Pre-employment Medical Check-up | SENDER_ROLE: student | QUESTION: \"Kindly liaise with the UHC doctor on my pre-employment medical check-up.\" -> operational_info (personal routing request, not partnership)"
+            }
+          ]
+        },
+        "batching": {
+          "batchSize": 50,
+          "delayBetweenBatches": 200
+        }
+      },
+      "id": "1aa6e98a-feff-408f-847c-dd53de897938",
+      "name": "Classify Intent (LLM)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1040,
+        912
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.4",
+          "mode": "list",
+          "cachedResultName": "gpt-5.4"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "reasoningEffort": "medium",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "bb4721ab-cade-4b9b-994d-d5748dace53d",
+      "name": "OpenAI Chat Model (Intent)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        1440
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "9c7524f5-47fd-4fd3-bb8d-032478f6761d",
+      "name": "OpenAI Chat Model (Intent Fallback)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1072,
+        1424
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"intent\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"appointment\",\n        \"assessment_request\",\n        \"service_clarification\",\n        \"operational_info\",\n        \"volunteer_internship\",\n        \"staff_referral\",\n        \"partnership\",\n        \"non_actionable\"\n      ],\n      \"description\": \"Single best-fit intent for the inbound QUESTION email. Use non_actionable for marketing/manpower/spam or anything outside the other seven categories.\"\n    }\n  },\n  \"required\": [\n    \"intent\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "14029f06-dfe3-40e4-b59f-4d6df0117ad4",
+      "name": "Structured Output Parser (Intent)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "8f2ae565-9e46-4f3e-9852-6144c316079f",
+      "name": "OpenAI Chat Model (Intent Auto-Fix)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1232,
+        1456
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 0.8
+      },
+      "id": "b8f86b08-411e-4c07-bab1-52a7ef244cd9",
+      "name": "Delay - Intent",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        912
+      ],
+      "webhookId": "cfd9d946-1434-4c91-be56-ffac71a008e8"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "7d3d5dec-2852-407d-98d5-5cca55fd19b6",
+      "name": "Merge Record + Intent",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1808,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Attach `intent` onto the record without disturbing any other field.\n//\n// Paired items arrive already combined (Merge Record + Intent,\n// combine-by-position): the item carries BOTH the full record AND the LLM\n// output under `output.intent`. Unpaired items arrive straight from\n// \"If Paired\" false, via Clean Unpaired Reply, with no output key.\n//\n// Either way we read only the item's own json -- no cross-node $('...').item\n// reach-back, which is what previously forced full-run data into memory and\n// crashed the task runner.\n//\n// MODE: \"Run Once for All Items\". $json would resolve to the FIRST item only,\n// so we iterate $input.all() explicitly and return an array. Mapping 1:1\n// preserves position -- never filter here.\n\nconst ALLOWED = [\n  \"appointment\", \"assessment_request\", \"service_clarification\", \"operational_info\",\n  \"volunteer_internship\", \"staff_referral\", \"partnership\",\"consult_required\", \"non_actionable\"\n];\n\nreturn $input.all().map((item) => {\n  const j = item.json;\n\n  if (j.paired !== true) {\n    const { output, ...rest } = j;\n    return { json: { ...rest, intent: '' } };\n  }\n\n  const parsed = (j.output && typeof j.output === 'object') ? j.output : {};\n  let intent = (parsed.intent == null ? '' : String(parsed.intent)).trim().toLowerCase();\n  if (!ALLOWED.includes(intent)) intent = 'non_actionable';\n\n  // Drop the transient `output` wrapper so downstream sees a clean record.\n  const { output, ...rest } = j;\n  return { json: { ...rest, intent } };\n});"
+      },
+      "id": "823a1329-00e1-45fd-ab3b-27603371c587",
+      "name": "Merge Intent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2032,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "8aa61e04-f880-464e-8553-82bd5e2a71bc",
+      "name": "Merge Paired + Unpaired",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2304,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Derive deterministic sender_role from the inbound question's sender address.\n// student   -> @u.nus.edu, @u.yale-nus.edu.sg, @u.duke.nus.edu\n// visitor   -> @visitor.nus.edu.sg, @partner.nus.edu.sg\n// staff     -> @nus.edu.sg\n// external  -> partner orgs, gmail/yahoo/outlook, anything else\n// unknown   -> no usable address\n\nconst roleFor = (address) => {\n  const addr = String(address || '').trim().toLowerCase();\n  const at = addr.lastIndexOf('@');\n  const domain = at >= 0 ? addr.slice(at + 1) : '';\n\n  if (!domain) return 'unknown';\n\n  if (\n    domain === 'u.nus.edu' ||\n    domain.endsWith('.u.nus.edu') ||\n    domain === 'u.yale-nus.edu.sg' ||\n    domain.endsWith('.u.yale-nus.edu.sg') ||\n    domain === 'u.duke.nus.edu' ||\n    domain.endsWith('.u.duke.nus.edu')\n  ) {\n    return 'student';\n  }\n\n  if (\n    domain === 'visitor.nus.edu.sg' ||\n    domain.endsWith('.visitor.nus.edu.sg') ||\n    domain === 'partner.nus.edu.sg' ||\n    domain.endsWith('.partner.nus.edu.sg')\n  ) {\n    return 'visitor';\n  }\n\n  if (\n    domain === 'nus.edu.sg' ||\n    domain.endsWith('.nus.edu.sg')\n  ) {\n    return 'staff';\n  }\n\n  return 'external';\n};\n\nreturn $input.all().map(i => ({\n  json: {\n    ...i.json,\n    sender_role: roleFor(i.json.question_from)\n  }\n}));"
+      },
+      "id": "82647745-c052-4294-a491-4e2342badace",
+      "name": "Derive sender_role",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2528,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f27d6e63-6458-43ab-a55d-8eda5cda5a73",
+              "leftValue": "={{ $json.paired }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d725c5a4-900e-44a0-980d-e02874b2d9e4",
+      "name": "If Paired (Index)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2768,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------- Build Embedding Batches ----------\n// text-embedding-3-large accepts an array of inputs per request. We send 96 at\n// a time: large enough to amortise the round-trip, small enough to stay under\n// the per-request token ceiling given each input is capped at 8000 chars.\n//\n// Emits one item per batch: { input: [...], _rows: [...] } where _rows carries\n// the FULL source record for each input. Carrying the records here (rather than\n// a positional index into some other node) is what lets \"Attach Embeddings\"\n// avoid any cross-node reach-back at all.\n\nconst BATCH = 96;\n\nconst items = $input.all();\nconst out = [];\n\nfor (let i = 0; i < items.length; i += BATCH) {\n  const slice = items.slice(i, i + BATCH);\n  out.push({\n    json: {\n      _rows: slice.map((it) => it.json),\n      // Embed the same string WF-1a's Default Data Loader embedded:\n      //   \"Subject: {question_subject}\\n\\n{text}\"\n      input: slice.map((it) => {\n        const j = it.json;\n        const s = `Subject: ${j.question_subject || ''}\\n\\n${j.text || ''}`.trim();\n        // OpenAI rejects empty strings. Should never happen on the paired\n        // branch, but guard anyway.\n        return s.length ? s : ' ';\n      })\n    }\n  });\n}\n\nreturn out;\n"
+      },
+      "id": "7a043129-7e34-47ae-8aac-0f875a448af6",
+      "name": "Build Embedding Batches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3168,
+        768
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.global_ai_know_url}}/completions/oai/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ input: $json.input, model: \"text-embedding-3-large\",dimensions: 3072 }) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 4,
+              "batchInterval": 200
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "0f1552a9-14e4-407c-a80e-2aa1397e5501",
+      "name": "HTTP - Embeddings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3344,
+        768
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      },
+      "disabled": true,
+      "notes": "The API does not echo _rows; Attach Embeddings reads it from $('Build Embedding Batches') via a bulk .all() snapshot."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Re-attach the embedding vectors to their source records.\n//\n// The OpenAI embeddings API does NOT echo our `_rows` passthrough back, so we\n// read it from the request builder. The HTTP node preserves input->output item\n// order 1:1, so response item N corresponds to batch N.\n//\n// $('Build Embedding Batches1').all() is a bulk snapshot of one node's output,\n// NOT a per-item pairedItem lookup. That distinction matters: $('X').item forces\n// n8n to walk the pairedItem lineage for every item, which is what previously\n// pulled the whole run into memory and crashed the task runner.\n\nconst batches = $('Build Embedding Batches').all();\nconst responses = $input.all();\n\nif (responses.length !== batches.length) {\n  throw new Error(\n    `Embedding response count (${responses.length}) != batch count (${batches.length})`\n  );\n}\n\nconst out = [];\n\nfor (let b = 0; b < responses.length; b++) {\n  const rows = batches[b].json._rows || [];\n  const data = (responses[b].json.data || [])\n    .slice()\n    .sort((a, x) => (a.index || 0) - (x.index || 0));\n\n  if (data.length !== rows.length) {\n    throw new Error(\n      `Batch ${b}: got ${data.length} vectors for ${rows.length} inputs`\n    );\n  }\n\n  for (let k = 0; k < rows.length; k++) {\n    out.push({ json: { ...rows[k], embedding: data[k].embedding } });\n  }\n}\n\nreturn out;\n"
+      },
+      "id": "1b52679e-75e7-4bf4-b6a3-3219a55d0416",
+      "name": "Attach Embeddings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3568,
+        768
+      ],
+      "retryOnFail": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Group the paired records into Azure AI Search index batches.\n//\n// Azure's /docs/index endpoint accepts up to 1000 documents (or 16 MB) per\n// request. We use 100 to stay well clear of the size ceiling given each doc\n// carries a 3072-dim vector (~24 KB as JSON floats) plus up to 16 KB of text.\n//\n// Emits ONE item per batch: { value: [ ...docs ] } -- exactly the request body\n// the HTTP node posts.\n\nconst BATCH = 100;\n\n// Azure document keys must be URL-safe: letters, digits, _ - =\n// conversationId is base64-ish and can contain / and +, so encode it.\nconst safeKey = (s) =>\n  Buffer.from(String(s || ''), 'utf8')\n    .toString('base64')\n    .replace(/\\+/g, '-')\n    .replace(/\\//g, '_')\n    .replace(/=+$/, '');\n\nconst items = $input.all();\nconst batches = [];\n\nfor (let i = 0; i < items.length; i += BATCH) {\n  const value = items.slice(i, i + BATCH).map((it) => {\n    const j = it.json;\n    return {\n      '@search.action': 'mergeOrUpload',\n      id: safeKey(`${j.conversationId}|${j.reply_sent_at}`),\n      conversationId: j.conversationId || '',\n      question_subject: j.question_subject || '',\n      question_from: j.question_from || '',\n      question_received_at: j.question_received_at || null,\n      text: j.text || '',\n      reply_subject: j.reply_subject || '',\n      reply_text: j.reply_text || '',\n      // Edm.DateTimeOffset -- must be null, not '', when absent.\n      reply_sent_at: j.reply_sent_at || null,\n      reply_from: j.reply_from || '',\n      sender_role: j.sender_role || '',\n      intent: j.intent || '',\n      text_vector: j.embedding || []\n    };\n  });\n  batches.push({ json: { value } });\n}\n\nreturn batches;\n"
+      },
+      "id": "5e3ca7d7-dffa-458f-911c-d4fbef684f17",
+      "name": "Build Azure Batches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3808,
+        768
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.AZURE_SEARCH_ENDPOINT }}/indexes/{{ $vars.AZURE_SEARCH_INDEX }}/docs/index?api-version={{$vars.AZURE_SEARCH_API_VERSION}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "azureAiSearchApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ value: $json.value }) }}",
+        "options": {
+          "batching": {
+            "batch": {}
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "37419f88-d0d0-4ad4-bf35-9dd95f10a7ed",
+      "name": "HTTP - Azure AI Search Index",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4032,
+        768
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "azureAiSearchApi": {
+          "id": "CBgKIjP2hrq577zE"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Azure returns HTTP 200 even when individual documents fail, and 207 on\n// partial success. Surface any per-document failure rather than silently\n// dropping records.\nconst failures = [];\nlet indexed = 0;\nfor (const item of $input.all()) {\n  for (const r of (item.json.value || [])) {\n    indexed++;\n    if (r.status !== true) {\n      failures.push({ key: r.key, code: r.statusCode, message: r.errorMessage });\n    }\n  }\n}\nif (failures.length) {\n  throw new Error(`Azure AI Search rejected ${failures.length} document(s): ` +\n    JSON.stringify(failures.slice(0, 5)));\n}\n\n// Indexing succeeded -- hand the paired records back to the main path so\n// \"Collect All Records\" / \"Set - Pair Record\" keep seeing full records.\n// Bulk snapshot (not $('X').item) to avoid pairedItem lineage walks.\nreturn $('Attach Embeddings').all().map((it) => {\n  const { embedding, ...rest } = it.json;   // drop the 3072-dim vector\n  return { json: rest };\n});\n"
+      },
+      "id": "87c5d6d3-ecfc-4a90-9926-dc50a82a9e09",
+      "name": "Check Index Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4256,
+        784
+      ],
+      "alwaysOutputData": false,
+      "retryOnFail": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9df165b0-83ef-4d46-85fc-74e854223b10",
+              "name": "conversationId",
+              "type": "string",
+              "value": "={{ $json.conversationId || '' }}"
+            },
+            {
+              "id": "1a46a8bd-f5d6-429d-8ca8-cc870c22e49c",
+              "name": "question_subject",
+              "type": "string",
+              "value": "={{ $json.question_subject || '' }}"
+            },
+            {
+              "id": "58ab79c7-b0cb-423d-8f1d-148431ac181b",
+              "name": "question_from",
+              "type": "string",
+              "value": "={{ $json.question_from || '' }}"
+            },
+            {
+              "id": "315f64ae-15a2-47f3-b36d-f2f56cf064c2",
+              "name": "question_received_at",
+              "type": "string",
+              "value": "={{ $json.question_received_at || '' }}"
+            },
+            {
+              "id": "783c60f7-6263-4431-b17a-27e255e55de5",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.text || '' }}"
+            },
+            {
+              "id": "26e82937-87cc-432f-b20a-97ed728c00cd",
+              "name": "reply_subject",
+              "type": "string",
+              "value": "={{ $json.reply_subject || '' }}"
+            },
+            {
+              "id": "0945f6e4-e959-4f89-9cde-e823aae8d4df",
+              "name": "reply_text",
+              "type": "string",
+              "value": "={{ $json.reply_text || '' }}"
+            },
+            {
+              "id": "b942f127-1795-4c89-98ef-ede3f08d8673",
+              "name": "reply_sent_at",
+              "type": "string",
+              "value": "={{ $json.reply_sent_at || '' }}"
+            },
+            {
+              "id": "96d01f07-7055-4d25-9bf3-3b3e80933037",
+              "name": "reply_from",
+              "type": "string",
+              "value": "={{ $json.reply_from || '' }}"
+            },
+            {
+              "id": "7cbbe0c8-3120-4aa7-a5d6-3e36ac763759",
+              "name": "sender_role",
+              "type": "string",
+              "value": "={{ $json.sender_role || '' }}"
+            },
+            {
+              "id": "b953ee2e-25ab-4095-899c-6bc5004f9a22",
+              "name": "intent",
+              "type": "string",
+              "value": "={{ $json.intent || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5e3d1ea7-8172-4bad-b90a-0eabfb5c8540",
+      "name": "Set - Pair Record",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4992,
+        1232
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "cc2a847d-842b-4e7e-b148-db0065e101f6",
+      "name": "Collect All Records",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4720,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8ca6f00d-c14d-4dc3-8cd6-a73a8b83a260",
+              "leftValue": "={{ ($json.from && $json.from.emailAddress && $json.from.emailAddress.address) || '' }}",
+              "rightValue": "/^\\/o=/i",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0c7a7797-576b-4522-a98b-3fc3d859b516",
+      "name": "If Legacy DN Sender",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -464,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.microsoft.com/v1.0/me/messages/{{ $json.id }}?$select=internetMessageHeaders",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOutlookOAuth2Api",
+        "options": {}
+      },
+      "id": "b6546756-e167-447e-bf0a-92955d65e707",
+      "name": "HTTP - Get Question Headers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -80,
+        400
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "WteKykd6ryTDfALB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3e9759e5-e4b6-41e6-ac0f-e2f2a9c030bd",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender').item.json.id }}"
+            },
+            {
+              "id": "f7f524a3-1872-4f1a-bf19-4e37a7698d10",
+              "name": "conversationId",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender').item.json.conversationId }}"
+            },
+            {
+              "id": "b60b41be-5d08-405b-83cc-0f121c4b5eea",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender').item.json.subject }}"
+            },
+            {
+              "id": "84a4c372-dc73-499d-9d06-6a813361ffa5",
+              "name": "from.emailAddress.name",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender').item.json.from.emailAddress.name }}"
+            },
+            {
+              "id": "4b44f8ca-5785-49ed-bbf6-827335c6d67c",
+              "name": "from.emailAddress.address",
+              "type": "string",
+              "value": "={{ (() => { const H = ($json.internetMessageHeaders || []); const val = (n) => (H.find(h => (h.name||'').toLowerCase() === n) || {}).value || ''; const grab = (s) => { const m = String(s).match(/<([^>]+@[^>]+)>/) || String(s).match(/([^\\s<>]+@[^\\s<>]+)/); return m ? m[1].trim().toLowerCase() : ''; }; const o = $('If Legacy DN Sender').item.json; const fb = ((o.from && o.from.emailAddress && o.from.emailAddress.address) || ''); return grab(val('return-path')) || grab(val('sender')) || grab(val('from')) || fb; })() }}"
+            },
+            {
+              "id": "1989aad7-8110-40f8-840b-c356a7bb69d1",
+              "name": "receivedDateTime",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender').item.json.receivedDateTime }}"
+            },
+            {
+              "id": "b181715b-b3de-46f6-abdf-ec191d883b0b",
+              "name": "sentDateTime",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender').item.json.sentDateTime }}"
+            },
+            {
+              "id": "65ba2e59-0815-45cb-b946-476545685af4",
+              "name": "body",
+              "type": "object",
+              "value": "={{ $('If Legacy DN Sender').item.json.body }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3ba72b4-dc9b-4de0-afe7-7fc693febedb",
+      "name": "Set - Resolve SMTP From",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6ae9b4ed-e8e4-4764-98a0-16a7709e5434",
+              "leftValue": "={{ String($json.subject || '').replace(/^(\\s*(re|res|aw|sv|vs|antwort)\\s*(\\[\\d+\\])?\\s*:\\s*)+/i, '').trim() }}",
+              "rightValue": "/^(fw|fwd|fwd?d|tr|wg|rv|enc)\\s*(\\[\\d+\\])?\\s*:/i",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0fb51261-9d62-48b0-bca4-d80a07e023f9",
+      "name": "If Forwarded Question",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1776,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pre-clean a forwarded email's HTML BEFORE the Markdown node converts it.\n// The built-in Markdown node converts everything faithfully, including the\n// \"- External Email -\" banner and Oracle/RightNow tracking tables, which would\n// otherwise become markdown noise that dilutes the LLM's signal. Here we remove\n// that chrome and cap size; the Markdown node then does the actual conversion.\n//\n// Emits body.content (cleaned HTML) plus _fwd_html (original, for fallback).\n\nconst RAW_CAP = 65536;\n\nconst stripChrome = s => String(s || '')\n  .slice(0, RAW_CAP)\n  // External Email banner table\n  .replace(/<table\\b(?:(?!<\\/?table\\b)[\\s\\S])*?External Email(?:(?!<\\/?table\\b)[\\s\\S])*?<\\/table>/gi, ' ');\n\n// Stamp the sent reply onto the item so the forwarded pairing node never has to\n// reach back for it. This node runs on exactly the same iterations as\n// \"Pair Q -> A (Fwd)\", and its lineage to the loop is short and Agent-free, so\n// $('Loop Over Replies1').item resolves reliably HERE -- which it does not once\n// the Agent has been crossed.\nconst reply = $('Loop Over Replies').item.json;\n\nreturn $input.all().map(item => {\n  const j = item.json;\n  const origHtml = (j.body && j.body.content) || '';\n  return {\n    json: {\n      ...j,\n      _reply: reply,                       // sent reply, carried to Pair Q -> A (Fwd)\n      _fwd_html: origHtml,                 // untouched original, for fallback\n      _fwd_clean_html: stripChrome(origHtml), // fed to the Markdown node\n    },\n    pairedItem: item.pairedItem,\n  };\n});\n"
+      },
+      "id": "a25110a3-cb75-4767-8354-6f05a976fe4c",
+      "name": "Code - Fwd Pre-clean HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1520,
+        160
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 1500,
+      "maxTries": 3
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=EMAIL (markdown, may contain forwarded/quoted sections):\n```\n{{ $json._fwd_md === undefined ? '' : $json._fwd_md }}\n```",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You extract the genuine query from a forwarded email so it can be answered. The message below, between triple backticks, is one email in markdown. It has two parts: (1) a COVERING MESSAGE written by the person who forwarded it, and (2) one or more QUOTED or FORWARDED messages beneath it (marked by lines like 'Forwarded message', 'From:/Sent:/Subject:' header blocks, or reply markers).\n\nDecide what to return using these rules, in order:\n\n1. If the COVERING MESSAGE contains a genuine question or request -- the sender actually asking for something, describing a situation that needs a response, or raising an issue -- return the covering message in full: their greeting, the body of what they wrote, any details or context they typed, and their sign-off. Do NOT trim it to a single sentence.\n\n2. If the COVERING MESSAGE is only a routing or handover note with no genuine query of its own -- for example 'Forwarding this for your assistance', 'Signposting to UCS for follow-up', 'Please assist', 'FYI', 'Passing this on', 'For your action', or similar internal-routing text -- then IGNORE it and instead return the genuine query from the QUOTED or FORWARDED message beneath it: the actual message a student or enquirer wrote that needs answering.\n\n3. If neither part contains a clear question but the quoted/forwarded content is a letter, notice, or message that the recipient still needs to act on, return that quoted content (even if it is an official letter). Prefer returning substantive content over returning nothing.\n\n4. Only if there is no covering query AND no meaningful quoted content at all (the email is empty routing text with nothing beneath it) should you return an empty string for query.\n\nA routing/handover note is never itself the answer -- treat lines whose only purpose is to pass the email along as NOT a genuine query. Return whichever single piece of text a person would need to read in order to reply. Preserve wording exactly; do not summarise, translate, merge parts, or add commentary. Keep any URLs."
+        }
+      },
+      "id": "d2121c1e-20d4-4b82-84ce-05e6ff19afd6",
+      "name": "Find Query Body (Agent)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1120,
+        176
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 45000,
+          "maxRetries": 2
+        }
+      },
+      "id": "91d0abec-4385-4b12-b2da-6bb62c917ecb",
+      "name": "OpenAI Chat Model (Find Query)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1136,
+        656
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.5",
+          "mode": "list",
+          "cachedResultName": "gpt-5.5"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 45000,
+          "maxRetries": 2
+        }
+      },
+      "id": "0723a681-bf57-47e9-b57a-692ee3b41e90",
+      "name": "OpenAI Chat Model (Find Query Fallback)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -960,
+        656
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"query\": {\n      \"type\": \"string\",\n      \"description\": \"The sender's own question text, verbatim, or empty string if none.\"\n    }\n  },\n  \"required\": [\n    \"query\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "c9c22707-1cbc-4dd7-b368-e1eb11d107ed",
+      "name": "Structured Output Parser (Find Query)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -784,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "html": "={{ $json._fwd_clean_html }}",
+        "destinationKey": "_fwd_md",
+        "options": {
+          "ignore": "img,style,script",
+          "maxConsecutiveNewlines": 2,
+          "useLinkReferenceDefinitions": false
+        }
+      },
+      "id": "781f7625-b28f-4f61-80ce-8fa028f3d298",
+      "name": "Markdown - Fwd HTML to MD",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 0.8
+      },
+      "id": "43d6fe3f-aee6-407e-939b-cf095d8ab280",
+      "name": "Delay - Query Body",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -784,
+        160
+      ],
+      "webhookId": "cfd9d946-1434-4c91-be56-ffac71a008e8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8ca6f00d-c14d-4dc3-8cd6-a73a8b83a260",
+              "leftValue": "={{ ($json.from && $json.from.emailAddress && $json.from.emailAddress.address) || '' }}",
+              "rightValue": "/^\\/o=/i",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ab2e0277-5532-4e5f-8ed1-dc672916233d",
+      "name": "If Legacy DN Sender (Fwd)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        560,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.microsoft.com/v1.0/me/messages/{{ $json.id }}?$select=internetMessageHeaders",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOutlookOAuth2Api",
+        "options": {}
+      },
+      "id": "a6fc34e6-a4c8-4397-a159-c322c6fc90ae",
+      "name": "HTTP - Get Question Headers (Fwd)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        48
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "WteKykd6ryTDfALB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pair a FORWARDED inbound question with the sent reply it produced.\n//\n// Three deliberate differences from the main \"Pair Q -> A\":\n//\n// 1. The QUESTION body is NOT HTML-stripped. \"Code - Apply Query Body\" has\n//    already replaced body.content with the Agent's verbatim plain-text\n//    extraction, so re-running strip() would only mangle punctuation and flatten\n//    the paragraph breaks. We trim, cap runs of blank lines, and cap length --\n//    no tag removal, no quote cutting, no entity decoding.\n//    If the Agent produced nothing, \"Code - Apply Query Body\" restored the\n//    original HTML and set _fwd_extracted=false; that case DOES get the full\n//    strip(), otherwise raw markup would reach the embedding.\n//\n// 2. The REPLY is untouched by any of the above -- it is still raw Outlook HTML\n//    straight from Sent Items, so it gets the identical stripL() treatment the\n//    main node applies (links preserved as \"text (href)\").\n//\n// 3. The sent reply is read from $json._reply, stamped on by\n//    \"Code - Fwd Pre-clean HTML\". NO $('Loop Over Replies1').item reach-back:\n//    that pairedItem walk would have to cross the Agent node. .all() is not a\n//    substitute either -- this node only runs on forwarded iterations, so its\n//    run index does not track the loop's.\n//\n// Output shape is field-for-field identical to the main node, so everything\n// downstream of \"Loop Over Replies\" done is unchanged.\n\nconst RAW_CAP = 65536;\n\nconst decode = s => String(s || '')\n  .replace(/&nbsp;/gi, ' ')\n  .replace(/&amp;/gi, '&')\n  .replace(/&lt;/gi, '<')\n  .replace(/&gt;/gi, '>')\n  .replace(/&quot;/gi, '\"')\n  .replace(/&#39;/gi, \"'\")\n  .replace(/&#(\\d+);/g, (m, n) => String.fromCharCode(Number(n)))\n  .replace(/&#x([0-9a-f]+);/gi, (m, n) => String.fromCharCode(parseInt(n, 16)));\n\nconst stripBanner = s => String(s || '')\n  .replace(/<table\\b(?:(?!<\\/?table\\b)[\\s\\S])*?External Email(?:(?!<\\/?table\\b)[\\s\\S])*?<\\/table>/gi, ' ');\n\nconst cutHtml = s => {\n  s = String(s || '');\n  const M = [/appendonsend/i, /border-top:\\s*solid/i, /gmail_quote/i, /<blockquote/i];\n  let c = s.length;\n  for (const rx of M) { const m = s.match(rx); if (m && m.index >= 0 && m.index < c) c = m.index; }\n  const lt = s.lastIndexOf('<', c);\n  if (lt >= 0) c = lt;\n  return s.slice(0, c);\n};\n\nconst cutText = s => {\n  s = String(s || '');\n  const M = [/-{2,}\\s*Original Message\\s*-{2,}/i, /\\bOn .{0,160}\\bwrote:/i, /\\bFrom:\\s.{0,120}\\bSent:\\s/i, /\\bGet Outlook for /i];\n  let c = s.length;\n  for (const rx of M) { const m = s.match(rx); if (m && m.index >= 0 && m.index < c) c = m.index; }\n  return s.slice(0, c);\n};\n\n// Display name from the Graph `from` object: { emailAddress: { name, address } }.\n// Often absent, and Outlook frequently fills it with the address itself -- in\n// that case treat it as no name at all rather than storing a duplicate.\nconst dispName = (o) => {\n  const ea = (o && o.emailAddress) || {};\n  const nm = String(ea.name || '').trim();\n  const ad = String(ea.address || '').trim();\n  if (!nm) return '';\n  if (nm.toLowerCase() === ad.toLowerCase()) return '';\n  return nm;\n};\n\nconst strip = h => cutText(\n  decode(\n    stripBanner(cutHtml(String(h || '').slice(0, RAW_CAP)))\n      .replace(/<[^>]+>/g, ' ')\n      .replace(/<\\/?[a-z!][^>]*$/i, ' ')\n  )\n).replace(/\\s+/g, ' ').trim();\n\nconst keepLinks = s => String(s || '').replace(\n  /<a\\b[^>]*\\bhref=[\"']([^\"']+)[\"'][^>]*>([\\s\\S]*?)<\\/a>/gi,\n  (m, href, txt) => txt.replace(/<[^>]+>/g, '').trim() + ' (' + href + ')'\n);\n\nconst stripL = h => cutText(\n  decode(\n    keepLinks(stripBanner(cutHtml(String(h || '').slice(0, RAW_CAP))))\n      .replace(/<[^>]+>/g, ' ')\n      .replace(/<\\/?[a-z!][^>]*$/i, ' ')\n  )\n).replace(/\\s+/g, ' ').trim();\n\n// Plain-text passthrough: no tag stripping. Normalise trailing spaces and\n// collapse 3+ blank lines so paragraph structure survives into the embedding.\nconst passthrough = s => String(s || '')\n  .slice(0, RAW_CAP)\n  .replace(/[ \\t]+$/gm, '')\n  .replace(/\\n{3,}/g, '\\n\\n')\n  .trim();\n\nconst items = $input.all();\nconst q = items.length ? items[0].json : {};\n\n// The sent reply is read from a BULK SNAPSHOT of \"Code - Fwd Pre-clean HTML\",\n// which stamped it on before the Markdown node. Two reasons this and not\n// $('Loop Over Replies').item:\n//\n//   * n8n's Markdown node returns via helpers.returnJsonArray(), which does NOT\n//     attach pairedItem. Any .item walk from here backwards dies at that node --\n//     that is what broke the original forwarded path.\n//   * .all()/.first() need no lineage, and \"Code - Fwd Pre-clean HTML\" executes\n//     on exactly the same iterations as this node, so their run indices agree.\n//     (A snapshot of a node that runs EVERY iteration -- e.g. Loop Over Replies\n//     itself -- would NOT be safe here, since this node only runs on forwarded\n//     ones and its run index would lag.)\n//\n// q._reply is preferred when it survived the Agent hop; the snapshot is the\n// authoritative fallback.\nconst snap = $('Code - Fwd Pre-clean HTML').first().json || {};\nconst reply = (q._reply && q._reply.conversationId) ? q._reply : (snap._reply || {});\n\nconst OUR_MAILBOX = ((reply.from && reply.from.emailAddress && reply.from.emailAddress.address) || '').toLowerCase();\nconst replyAt = new Date(reply.sentDateTime || reply.createdDateTime || 0).getTime();\nconst convId = reply.conversationId || '';\n\nconst rBody = stripL((reply.body && reply.body.content));\n\n// Same guards as the main node: same conversation, not us, at/before the reply,\n// not an auto-reply. Upstream filters already enforce these; kept so a forwarded\n// item that slips through degrades to unpaired rather than mispairing.\nconst qFrom = ((q.from && q.from.emailAddress && q.from.emailAddress.address) || '').toLowerCase();\nconst qAt = new Date(q.receivedDateTime || q.sentDateTime || 0).getTime();\nconst qAuto = /^(automatic reply|auto-?reply|out of office|undeliverable|delivery status notification|delivery has failed|read:|accepted:|declined:|tentative:)/i\n  .test(String(q.subject || '').trim());\n\nconst usable = convId\n  && ((q.conversationId || '') === convId)\n  && qFrom\n  && qFrom !== OUR_MAILBOX\n  && qAt <= replyAt\n  && !qAuto;\n\nif (!usable) {\n  return [{ json: {\n    paired: false,\n    conversationId: convId,\n    question_subject: '',\n    question_from: '',\n    question_received_at: '',\n    text: '',\n    reply_subject: reply.subject || '',\n    reply_text: rBody.slice(0, 8000),\n    reply_sent_at: reply.sentDateTime || '',\n    reply_from: OUR_MAILBOX\n  } }];\n}\n\nconst raw = (q.body && q.body.content) || '';\n// _fwd_extracted true  -> Agent gave us clean text, pass it through untouched.\n// _fwd_extracted false -> original HTML was restored upstream, so strip it.\nconst qBody = q._fwd_extracted === true ? passthrough(raw) : strip(raw);\n\nreturn [{ json: {\n  paired: true,\n  // ---- EMBEDDED TEXT = the forwarded covering message ----\n  text: qBody.slice(0, 8000),\n  // ---- question metadata ----\n  conversationId: convId,\n  question_subject: q.subject || '',\n  question_from: qFrom,\n  question_from_name: dispName(q.from),\n  question_received_at: q.receivedDateTime || '',\n  // ---- the ANSWER rides along as metadata ----\n  reply_subject: reply.subject || '',\n  reply_text: rBody.slice(0, 8000),\n  reply_sent_at: reply.sentDateTime || '',\n  reply_from: OUR_MAILBOX\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        176
+      ],
+      "id": "364cf501-c436-4078-a612-1eb248423dce",
+      "name": "Pair Q -> A (Fwd)",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ee9608b2-5f0d-404d-ab6c-11b9754939a8",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json.id }}"
+            },
+            {
+              "id": "4568375a-571a-48ba-a544-650aaa571751",
+              "name": "conversationId",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json.conversationId }}"
+            },
+            {
+              "id": "23d74941-b226-4e57-9559-f9e382f27917",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json.subject }}"
+            },
+            {
+              "id": "a7b03d9a-8847-45d3-9b51-e5fcef77343d",
+              "name": "from.emailAddress.name",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json.from.emailAddress.name }}"
+            },
+            {
+              "id": "73a8afbf-a202-4e01-8095-c778e8385529",
+              "name": "from.emailAddress.address",
+              "type": "string",
+              "value": "={{ (() => { const H = ($json.internetMessageHeaders || []); const val = (n) => (H.find(h => (h.name||'').toLowerCase() === n) || {}).value || ''; const grab = (s) => { const m = String(s).match(/<([^>]+@[^>]+)>/) || String(s).match(/([^\\s<>]+@[^\\s<>]+)/); return m ? m[1].trim().toLowerCase() : ''; }; const o = $('If Legacy DN Sender (Fwd)').item.json; const fb = ((o.from && o.from.emailAddress && o.from.emailAddress.address) || ''); return grab(val('return-path')) || grab(val('sender')) || grab(val('from')) || fb; })() }}"
+            },
+            {
+              "id": "105d25e0-6fe7-4631-9c4e-77f50c4388c6",
+              "name": "receivedDateTime",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json.receivedDateTime }}"
+            },
+            {
+              "id": "db62bc6d-2251-4eab-9b10-6cdd6432d3a0",
+              "name": "sentDateTime",
+              "type": "string",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json.sentDateTime }}"
+            },
+            {
+              "id": "50014ec5-d148-44fd-b228-220ba3ddf301",
+              "name": "body",
+              "type": "object",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json.body }}"
+            },
+            {
+              "id": "b6fea8c5-bed5-4f27-94a8-b80f41ef6454",
+              "name": "_reply",
+              "type": "object",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json._reply }}"
+            },
+            {
+              "id": "5a2c7b7d-30cf-40bf-a42b-0fdf1eda8713",
+              "name": "_fwd_extracted",
+              "type": "boolean",
+              "value": "={{ $('If Legacy DN Sender (Fwd)').item.json._fwd_extracted }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fc4a6757-f9bd-47a7-83dd-514a5cb663ca",
+      "name": "Set - Resolve SMTP From (Fwd)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1072,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "indexName": "={{ $vars.AZURE_SEARCH_INDEX }}",
+        "embeddingBatchSize": 300,
+        "options": {
+          "clearIndex": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreAzureAISearch",
+      "typeVersion": 1.3,
+      "position": [
+        3008,
+        1392
+      ],
+      "id": "46115729-d35c-4d03-83d9-f3d18440d7e9",
+      "name": "Azure AI Search - Insert",
+      "credentials": {
+        "azureAiSearchApi": {
+          "id": "CBgKIjP2hrq577zE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-large",
+        "options": {
+          "dimensions": 3072,
+          "batchSize": 512,
+          "timeout": 60000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2912,
+        1600
+      ],
+      "id": "ed8a8519-5ff6-45a7-8c4c-ba1d53618b94",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "=Subject: {{ $json.question_subject }}\n\n{{ $json.text }}",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "conversationId",
+                "value": "={{ $json.conversationId || '' }}"
+              },
+              {
+                "name": "question_subject",
+                "value": "={{ $json.question_subject || '' }}"
+              },
+              {
+                "name": "question_from",
+                "value": "={{ $json.question_from || '' }}"
+              },
+              {
+                "name": "question_received_at",
+                "value": "={{ $json.question_received_at || '' }}"
+              },
+              {
+                "name": "reply_subject",
+                "value": "={{ $json.reply_subject || '' }}"
+              },
+              {
+                "name": "reply_text",
+                "value": "={{ $json.reply_text || '' }}"
+              },
+              {
+                "name": "reply_sent_at",
+                "value": "={{ $json.reply_sent_at || '' }}"
+              },
+              {
+                "name": "reply_from",
+                "value": "={{ $json.reply_from || '' }}"
+              },
+              {
+                "name": "sender_role",
+                "value": "={{ $json.sender_role || '' }}"
+              },
+              {
+                "name": "intent",
+                "value": "={{ $json.intent || '' }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        3104,
+        1600
+      ],
+      "id": "88690d34-1d82-43c7-947a-0bbdeb11172f",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 12000,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        3104,
+        1808
+      ],
+      "id": "f465ca2f-5cf8-4f5e-9c5a-1a7679f5ba7c",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Replaces \"Check Index Result\". The vector store node throws on batch\n// failure, so reaching this node means the insert succeeded.\n//\n// Restore the full paired records for the main path \n\nreturn $('If Paired (Index)').all(0).map((it) => ({ json: it.json }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4352,
+        1392
+      ],
+      "id": "1b00cc79-643e-4762-8c7a-23fe3a645368",
+      "name": "Restore Paired Records",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "a87ef17d-64f8-4a71-9796-6caf074c56c0",
+      "name": "Merge - Record + Query",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -496,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7c9e0462-7926-4cc4-8181-461e4b8d4885",
+              "leftValue": "={{ (($json.output && $json.output.query) || '').trim().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "400453be-4814-4021-817f-ec3900b80296",
+      "name": "If Query Extracted",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1b70f1e-f5f0-4dee-b45b-35abe3cf552a",
+              "name": "body",
+              "type": "object",
+              "value": "={{ { contentType: 'text', content: $json.output.query.trim() } }}"
+            },
+            {
+              "id": "40094b3a-453a-44d0-a432-e4c0fcd8dd4c",
+              "name": "_fwd_extracted",
+              "type": "boolean",
+              "value": "={{ true }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "cf9c21e6-3234-4a07-974f-92e7aaa2ff85",
+      "name": "Set - Body From Query",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ed6a9aa-0117-4e44-b503-3bc8b8d8401d",
+              "name": "body",
+              "type": "object",
+              "value": "={{ { contentType: 'html', content: ($json._fwd_html != null ? $json._fwd_html : (($json.body && $json.body.content) || '')) } }}"
+            },
+            {
+              "id": "6aab10c7-b793-4384-9e76-bf06bb5ff90d",
+              "name": "_fwd_extracted",
+              "type": "boolean",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "acd8056c-bb19-45a9-8b2c-4a62284fc4b5",
+      "name": "Set - Body Fallback HTML",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -112,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "543a4d13-0a8f-4520-88a1-bd49b926a3b0",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json['id'] }}"
+            },
+            {
+              "id": "c326cd1a-cce1-4447-8245-2439fe5575a4",
+              "name": "conversationId",
+              "type": "string",
+              "value": "={{ $json['conversationId'] }}"
+            },
+            {
+              "id": "e62cbc6c-596b-4954-b082-7fb8c0a9cf05",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $json['subject'] }}"
+            },
+            {
+              "id": "81ce15cc-7f2a-4e33-9a55-74707099b888",
+              "name": "from",
+              "type": "object",
+              "value": "={{ $json['from'] }}"
+            },
+            {
+              "id": "37a2bc59-fb21-4a2c-a22b-b5891c96d3c3",
+              "name": "receivedDateTime",
+              "type": "string",
+              "value": "={{ $json['receivedDateTime'] }}"
+            },
+            {
+              "id": "a46ae576-1e2b-428c-939c-5c646f95e3d4",
+              "name": "sentDateTime",
+              "type": "string",
+              "value": "={{ $json['sentDateTime'] }}"
+            },
+            {
+              "id": "095ed94f-f3fb-4c3e-a1fe-a0e1f7b58195",
+              "name": "body",
+              "type": "object",
+              "value": "={{ $json['body'] }}"
+            },
+            {
+              "id": "636d0735-0eb9-4235-bd99-dd73d0b128f8",
+              "name": "_reply",
+              "type": "object",
+              "value": "={{ $json['_reply'] }}"
+            },
+            {
+              "id": "1b46debd-406a-4811-98a7-54ac3ba46c59",
+              "name": "_fwd_extracted",
+              "type": "boolean",
+              "value": "={{ $json['_fwd_extracted'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "de248cd4-1a15-417a-9c97-bcf7c6bfe4fe",
+      "name": "Set - Cleanup (Extracted)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "09d9444d-2e1a-4b78-a8ad-1d303e82c545",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json['id'] }}"
+            },
+            {
+              "id": "1bea17d5-1ecd-4365-ab59-b33744ad393c",
+              "name": "conversationId",
+              "type": "string",
+              "value": "={{ $json['conversationId'] }}"
+            },
+            {
+              "id": "9e5b1550-48ba-4a26-bf7b-d8887c9beb5d",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $json['subject'] }}"
+            },
+            {
+              "id": "a32e340b-37ab-40c5-8247-c3d1ea7a19fb",
+              "name": "from",
+              "type": "object",
+              "value": "={{ $json['from'] }}"
+            },
+            {
+              "id": "57737fbd-7039-4407-a881-a2d31aec9523",
+              "name": "receivedDateTime",
+              "type": "string",
+              "value": "={{ $json['receivedDateTime'] }}"
+            },
+            {
+              "id": "673ae783-6b50-4ed6-9be0-24e00997c5aa",
+              "name": "sentDateTime",
+              "type": "string",
+              "value": "={{ $json['sentDateTime'] }}"
+            },
+            {
+              "id": "1f03965a-f570-47a8-8fe3-688f9ecc4c0d",
+              "name": "body",
+              "type": "object",
+              "value": "={{ $json['body'] }}"
+            },
+            {
+              "id": "4c794e62-a2e4-41c3-9eae-04d36b421f23",
+              "name": "_reply",
+              "type": "object",
+              "value": "={{ $json['_reply'] }}"
+            },
+            {
+              "id": "10b0ef05-9138-440e-8e8b-27b78a245d97",
+              "name": "_fwd_extracted",
+              "type": "boolean",
+              "value": "={{ $json['_fwd_extracted'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3d31029c-41b6-4b9a-933a-f4157371cdf3",
+      "name": "Set - Cleanup (Fallback)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cond-no-attach",
+              "leftValue": "={{ $json.hasAttachments !== true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ee3dfe99-a460-43a1-84d1-0416609164fa",
+      "name": "Filter - No Attachments",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -3024,
+        496
+      ],
+      "alwaysOutputData": true,
+      "notes": "Drops mail carrying attachments. Sits BEFORE Filter - Exclude Own Mailbox on purpose: Code - Restore Filtered Emails reaches back to that node with .all(), so anything filtered after it would be resurrected."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pre-clean a forwarded email's HTML BEFORE the Markdown node converts it.\n// The built-in Markdown node converts everything faithfully, including the\n// \"- External Email -\" banner and Oracle/RightNow tracking tables, which would\n// otherwise become markdown noise that dilutes the LLM's signal. Here we remove\n// that chrome and cap size; the Markdown node then does the actual conversion.\n//\n// Emits body.content (cleaned HTML) plus _fwd_html (original, for fallback).\n\nconst RAW_CAP = 65536;\n\nconst stripChrome = s => String(s || '')\n  .slice(0, RAW_CAP)\n  // External Email banner table\n  .replace(/<table\\b(?:(?!<\\/?table\\b)[\\s\\S])*?External Email(?:(?!<\\/?table\\b)[\\s\\S])*?<\\/table>/gi, ' ')\n  // style/script/comments\n  .replace(/<style\\b[\\s\\S]*?<\\/style>/gi, ' ')\n  .replace(/<script\\b[\\s\\S]*?<\\/script>/gi, ' ')\n  .replace(/<!--[\\s\\S]*?-->/g, ' ')\n  // tracking pixels / template images with no alt\n  .replace(/<img\\b(?![^>]*\\balt=)[^>]*>/gi, ' ');\n\n// Stamp the sent reply onto the item so the forwarded pairing node never has to\n// reach back for it. This node runs on exactly the same iterations as\n// \"Pair Q -> A (Fwd)\", and its lineage to the loop is short and Agent-free, so\n// $('Loop Over Replies1').item resolves reliably HERE -- which it does not once\n// the Agent has been crossed.\nconst reply = $('Loop Over Replies').item.json;\n\nreturn $input.all().map(item => {\n  const j = item.json;\n  const origHtml = (j.body && j.body.content) || '';\n  return {\n    json: {\n      ...j,\n      _reply: reply,                       // sent reply, carried to Pair Q -> A (Fwd)\n      _fwd_html: origHtml,                 // untouched original, for fallback\n      _fwd_clean_html: stripChrome(origHtml), // fed to the Markdown node\n    },\n    pairedItem: item.pairedItem,\n  };\n});\n"
+      },
+      "id": "b7192a06-5610-4d91-a0e0-7a929504d93d",
+      "name": "Code - Fwd Pre-clean HTML1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1728,
+        0
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 1500,
+      "maxTries": 3
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "057f27e9-0b47-4ce6-ab9f-f797402a34b3",
+      "name": "OpenAI Chat Model (Find Query Auto-Fix)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -688,
+        816
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "id": "e5ab7257-6c62-4564-84ef-b74189dbf756",
+      "name": "Wait - Index Settle",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3392,
+        1392
+      ],
+      "webhookId": "c7f1a4e2-9b3d-4c81-a5f6-2e8d10b47a93",
+      "executeOnce": true,
+      "notes": "executeOnce collapses the N inserted items to 1 so the backfill runs once per execution, not once per document. The delay covers Azure's near-real-time indexing lag."
+    },
+    {
+      "parameters": {
+        "url": "={{ $vars.AZURE_SEARCH_ENDPOINT }}/indexes/{{ $vars.AZURE_SEARCH_INDEX }}/docs?api-version={{ $vars.AZURE_SEARCH_API_VERSION }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "azureAiSearchApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "search",
+              "value": "*"
+            },
+            {
+              "name": "$filter",
+              "value": "reply_sent_at eq null"
+            },
+            {
+              "name": "$select",
+              "value": "id,metadata"
+            },
+            {
+              "name": "$top",
+              "value": "1000"
+            },
+            {
+              "name": "$count",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "$skip",
+                    "value": "={{ $pageCount * 1000 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ ($response.body.value || []).length < 1000 }}",
+              "limitPagesFetched": true,
+              "maxRequests": 50
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "62d17bd1-8d44-4548-b714-ec97ff7db268",
+      "name": "HTTP - Find Unstamped Docs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3616,
+        1392
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "azureAiSearchApi": {
+          "id": "CBgKIjP2hrq577zE"
+        }
+      },
+      "notes": "GET rather than POST /docs/search: n8n pagination updates a query parameter ($skip), which a raw jsonBody cannot carry. All pages are fetched before any stamping runs, so $skip offsets stay stable. 50 x 1000 = 50k docs per execution."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build mergeOrUpload batches stamping the typed top-level reply_sent_at field\n// onto documents the vector store node wrote without it.\n//\n// Pagination means $input.all() holds ONE ITEM PER PAGE, not one per document,\n// so flatten across pages before batching.\n\nconst docs = [];\nfor (const p of $input.all()) {\n  const body = (p.json && p.json.body) || p.json || {};\n  for (const d of (body.value || [])) docs.push(d);\n}\n\nconst BATCH = 500; // Azure caps an index batch at 1000 docs / 16 MB\nconst out = [];\nlet batch = [];\n\nfor (const d of docs) {\n  const attrs = (d.metadata && d.metadata.attributes) || [];\n  const hit = attrs.find((a) => a.key === 'reply_sent_at');\n  const val = hit && hit.value ? String(hit.value).trim() : '';\n\n  // No usable timestamp: leave the field null rather than fail the batch.\n  if (!val || !d.id) continue;\n\n  batch.push({ '@search.action': 'mergeOrUpload', id: d.id, reply_sent_at: val });\n\n  if (batch.length >= BATCH) {\n    out.push({ json: { value: batch, batch_size: batch.length } });\n    batch = [];\n  }\n}\nif (batch.length) out.push({ json: { value: batch, batch_size: batch.length } });\n\nreturn out;\n"
+      },
+      "id": "55258864-162c-44a0-84db-512f9b1cdb4f",
+      "name": "Code - Build Merge Batches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3840,
+        1392
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.AZURE_SEARCH_ENDPOINT }}/indexes/{{ $vars.AZURE_SEARCH_INDEX }}/docs/index?api-version={{ $vars.AZURE_SEARCH_API_VERSION }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "azureAiSearchApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ value: $json.value }) }}",
+        "options": {
+          "batching": {
+            "batch": {}
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "57b67fc2-b36a-4f39-afbc-839a9cfb49a1",
+      "name": "HTTP - Stamp reply_sent_at",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4064,
+        1392
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "azureAiSearchApi": {
+          "id": "CBgKIjP2hrq577zE"
+        }
+      },
+      "notes": "mergeOrUpload touches only reply_sent_at - content and content_vector are left alone, so nothing is re-embedded."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=ASSIGNED_CLINICIAN:\n```\n{{ $json.assigned_clinician === undefined ? 'none' : $json.assigned_clinician }}\n```\n\nQUESTION:\n```\n{{ $json.text === undefined ? '' : $json.text }}\n```",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You decide ONE thing about an email sent to a University Counselling Services (UCS) front desk: whether the front desk can close it out themselves, or whether it has to go to a clinician.\n\nYou are given two fields, each wrapped in triple backticks:\n- ASSIGNED_CLINICIAN: the name of a UCS clinician this message refers to, or \"none\".\n- QUESTION: the inbound email body you are judging.\n\nReturn `consult_required: true` when the front desk cannot complete the request on its own - either because the matter already belongs to a named clinician, or because answering needs authority, precedent, or clinical reasoning.\nReturn `consult_required: false` when the front desk can finish the job from published information, its own records, or its own booking system.\n\nCheck ownership first, then judgement.\n\nPART A - OWNERSHIP. Any of these makes it true.\n\nO1 a session that belongs to a named clinician: the message reschedules, cancels, postpones, shortens, shifts, or reports non-attendance at an already-scheduled session, AND ASSIGNED_CLINICIAN is a name. Only that clinician can release or move their own diary, so the desk must hand it over. This holds however routine, brief, or apologetic the message is, and even when the sender proposes no new time.\n  If ASSIGNED_CLINICIAN is \"none\", this rule does NOT fire. A reschedule, cancellation, or slot negotiation for an intake, a first session, a general assessment, or a fitness assessment, with nobody named, is false - the desk holds those slots and rebooks them directly. \"I can't make the assigned timing, is it possible to change it?\" with ASSIGNED_CLINICIAN \"none\" is false.\nO2 a message meant for the counsellor: the sender asks UCS to pass something on, inform, update, or tell their counsellor, or writes content clearly addressed to the clinician rather than the desk.\nO3 an open case: the sender refers to their counsellor, their sessions, their ongoing counselling, or a thread that is plainly mid-episode, and the ask depends on what that clinician does next.\nO4 work a clinician must do: an assessment, report, memo, clearance, or fitness-to-resume outcome that a clinician must prepare, decide, sign, or release, where the ask is to change, dispute, interpret, or chase that work. A first request to arrange one through the standard route is NOT O4 - the desk books it. Nor is a bare status enquiry - \"has it been sent yet\", \"is it ready\", \"did the student attend\" - which is a lookup in the desk's own records. O4 fires when the message disputes the outcome, asks what it means, chases a step that failed to happen, or requests something beyond the standard artefact.\n\nPART B - JUDGEMENT. Any of these makes it true, whether or not Part A fired.\n\nF1 reassignment: the ask targets WHO the sender sees, not when. Change / different / another counsellor, reassign, transfer me, not a good fit, match me with someone else, a gender or style preference, asking to be seen by a specific named clinician instead, asking to RETURN to a counsellor seen previously, or chasing a counsellor change that was already agreed but never actioned.\nF2 clinical or onward referral: medication, prescribing, psychiatry, diagnosis, session frequency, or referral out to another clinical service. Includes continuity of a clinical arrangement already in place and handover after a hospitalisation or discharge.\n\nASSIGNED_CLINICIAN being a name does NOT make this false. It is the opposite signal: if the ask lands in a named clinician's diary or caseload, the front desk has to hand it over. Do not reason \"her counsellor could just grant this\" - that is precisely the case the front desk cannot close itself.\n\nBut a name is not proof of a case. The field lists people the message mentions, not verified clinicians - a friend, a professor, a family member, or the student a third party is writing about. Ask whether the message treats that person as the sender's counsellor; if it does not, no rule above fires.\n\nReturn false when the front desk can finish the job:\n- A request to BOOK a first session, an intake, or a new appointment where none is currently scheduled, with ASSIGNED_CLINICIAN \"none\" and no open case referenced.\n- Confirming or choosing a slot the front desk itself offered - \"yes, Tuesday works\", \"I'll take the 2pm\", supplying a matric number on request, listing availability when asked for it.\n- Logistics of a booked appointment the desk holds in its own records - which campus or room, whether the session is online or in person, the two-location acknowledgement wording, how early to arrive.\n- Anything no rule above covers: if the message does not land in a clinician's diary or caseload, is not about who the sender sees, and is not a clinical or referral matter, it is false. Policy and eligibility questions, complaints about the process, deadline pressure, proposals and collaborations, volunteering enquiries, marketing, newsletters, system notifications, and bare acknowledgements all go to the second classifier.\n\nIf a message could plausibly sit on either side, return false.\n\nContrast pairs - near-identical surface, opposite answer. Learn the flip, not the topic. Both inputs are shown on every pair:\n- ASSIGNED_CLINICIAN \"none\": \"I'm not free at the assigned timing for my intake, is it possible to change it? I don't mind waiting another week.\" -> false (intake-stage rebooking, desk-owned diary)\n- ASSIGNED_CLINICIAN \"Carol\": \"I have an appointment with Carol tomorrow at 10am but I've been sick for two days.\" -> true (O1: a name plus an existing session)\n- ASSIGNED_CLINICIAN \"none\": \"I can't make my appointment next Tuesday as I have classes and need to reschedule again.\" -> false (an existing slot, but nobody named; the desk rebooks)\n- ASSIGNED_CLINICIAN \"Ms Carol, Dr Tan\": \"I see Ms Carol next Tuesday but Dr Tan has scheduled a lab session then. Can it move?\" -> true (O1: several names, and one of them is plainly the counsellor holding the slot)\n- ASSIGNED_CLINICIAN \"Jenny\": \"My friend Jenny said I could book counselling here. How do I start?\" -> false (a name is present but nobody's diary is involved)\n- ASSIGNED_CLINICIAN \"Wei Ling\": \"I am the hostel manager. Just checking whether our resident Wei Ling has booked her Fitness Assessment yet.\" -> false (the name is the student being asked about, and a booking status is a desk lookup)\n- ASSIGNED_CLINICIAN \"none\": \"I would like to book my first counselling session.\" -> false (new booking)\n- ASSIGNED_CLINICIAN \"none\": \"I am writing to make an appointment for a fitness assessment to resume studies next semester.\" -> false (first request through the standard route)\n- ASSIGNED_CLINICIAN \"none\": \"Yes, Tuesday at 2pm works for me, thank you.\" -> false (confirming a slot the desk offered)\n- ASSIGNED_CLINICIAN \"none\": \"I have an appointment on 11 August - is it online or in person?\" -> false (the desk holds the modality in its records)\n- ASSIGNED_CLINICIAN \"none\": \"I am not feeling well and cannot come at 5pm. Could you also let my counsellor know?\" -> true (O2: a message for the counsellor, even with nobody named)\n- ASSIGNED_CLINICIAN \"none\": \"My counsellor has been unavailable since January. I would like to request another counsellor.\" -> true (F1: reassignment does not need a name)\n- ASSIGNED_CLINICIAN \"Ms Fabiola\": \"Could I please be matched with someone other than Ms Fabiola? I don't think it's a good fit.\" -> true (F1: a name, but the ask is about WHO, not when)\n- ASSIGNED_CLINICIAN \"none\": \"I was told my counsellor could refer me on for medication. What are the next steps?\" -> true (F2: prescribing and onward referral)\n- ASSIGNED_CLINICIAN \"none\": \"What is my assessment outcome, and what do I do next if it says resume?\" -> true (O4: interpreting a decision a clinician made)\n- ASSIGNED_CLINICIAN \"none\": \"Thank you, noted with thanks.\" -> false (bare acknowledgement)\n- ASSIGNED_CLINICIAN \"none\": \"Register now for our corporate wellness webinar.\" -> false (marketing)"
+            }
+          ]
+        },
+        "batching": {
+          "batchSize": 50,
+          "delayBetweenBatches": 200
+        }
+      },
+      "id": "dfd20f01-9a1d-4d02-a007-2e0a62a76e66",
+      "name": "Classify Consult (LLM)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -240,
+        992
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "customTelemetryTags": {}
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.4",
+          "mode": "list",
+          "cachedResultName": "gpt-5.4"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "reasoningEffort": "high",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "caaacdca-907d-4bf8-96e2-22b599eb7cc1",
+      "name": "OpenAI Chat Model (Consult)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        1328
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "82866d23-da19-4357-9423-724440fda080",
+      "name": "OpenAI Chat Model (Consult Fallback)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -176,
+        1360
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"consult_required\": {\n      \"type\": \"boolean\",\n      \"description\": \"true when the front desk cannot resolve the QUESTION by lookup or documented procedure and it needs a clinician's authority, precedent or clinical reasoning; false otherwise.\"\n    }\n  },\n  \"required\": [\n    \"consult_required\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "4c33999f-4fd4-4d6c-89f7-7faeaf0f3e39",
+      "name": "Structured Output Parser (Consult)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "id": "dbdfc221-7d75-45a8-822f-cc18f81cc9ec",
+      "name": "OpenAI Chat Model (Consult Auto-Fix)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        1488
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 0.8
+      },
+      "id": "00ab99b2-2a7e-4019-b409-58731a97e2b7",
+      "name": "Delay - Consult",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        992
+      ],
+      "webhookId": "ea77ae3e-55c9-4ef5-930c-2a158ec414f4"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "8eafe932-f1e6-47da-b9c7-95843a7eb5d5",
+      "name": "Merge Record + Consult",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        1168
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lift the consult gate's boolean onto the record and drop the LLM wrapper.\n//\n// Items arrive from \"Merge Record + Consult\" (combine-by-position): each item\n// carries BOTH the full record AND the chain output under `output`. Reads only\n// the item's own json -- no cross-node $('...').item reach-back, matching the\n// pattern used by \"Merge Bodies\" and \"Merge Intent\".\n//\n// MODE: \"Run Once for All Items\". Mapping is strictly 1:1 -- never filter here,\n// or the downstream combine-by-position merge will misalign.\n\nreturn $input.all().map((item) => {\n  const j = item.json;\n  const parsed = (j.output && typeof j.output === 'object') ? j.output : {};\n\n  let flag = parsed.consult_required;\n  if (typeof flag === 'string') flag = flag.trim().toLowerCase() === 'true';\n  flag = flag === true;\n\n  const { output, ...rest } = j;\n  return { json: { ...rest, consult_required: flag } };\n});"
+      },
+      "id": "0ab5f29a-119a-456b-8b42-ed704a68c8a6",
+      "name": "Apply Consult",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        1168
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4a838279-9877-4d14-b9f8-f5560b2edb20",
+              "leftValue": "={{ $json.consult_required }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ec210996-eb9e-4e4c-82d3-841c9c56f195",
+      "name": "If Consult Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        704,
+        1168
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6ef91433-646e-4d3d-9656-0ab5e03097cb",
+              "name": "intent",
+              "type": "string",
+              "value": "consult_required"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "2684e514-a25d-4b4a-967e-c909d97fe792",
+      "name": "Set - Intent Consult",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1632,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=SENDER_NAME:\n```\n{{ $json.question_from_name === undefined ? '' : $json.question_from_name }}\n```\n\nQUESTION:\n```\n{{ $json.text === undefined ? '' : $json.text }}\n```",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You identify which UCS clinicians, if any, an email to the University Counselling Services front desk refers to.\n\nYou are given one field, each wrapped in triple backticks: QUESTION.\n\nTHE CLINICIANS. These ten people are the only names you may return. The list gives the full name first, then the forms students and staff actually write:\n\n1. Duraipandi Angeline Jayanthi - \"Angeline\", \"Ms Angeline\", \"Jayanthi\"\n2. Tan Rui Ping, Benjamin - \"Benjamin\", \"Ben\", \"Mr Benjamin\", \"Benjamin Tan\", \"Rui Ping\"\n3. Carissa Yenn En Lim - \"Carissa\", \"Ms Carissa\", \"Carissa Lim\"\n4. Chan Ka Po, Carol - \"Carol\", \"Ms Carol\", \"Carol Chan\", \"Ka Po\"\n5. Evangeline Chen - \"Evangeline\", \"Ms Evangeline\", \"Eva\"\n6. Hema D/O Sivanathan - \"Hema\", \"Ms Hema\", \"Hema Sivanathan\"\n7. Mandy Lee - \"Mandy\", \"Ms Mandy\", \"Mandy Lee\"\n8. Shatish Jayakumar Rajamanickam - \"Shatish\", \"Mr Shatish\", \"Shatish Jayakumar\"\n9. Valerie Chua - \"Valerie\", \"Ms Valerie\", \"Val\", \"Valerie Chua\"\n10. Fabiola Agustina Kansil - \"Fabiola\", \"Ms Fabiola\", \"Fabiola Kansil\", \"Fabi\"\n\nMatch generously on form, strictly on identity. Accept a first name alone, a surname alone, a title plus one name, a reordered name, a misspelling that is clearly the same person, or a name split across the sentence. Do NOT accept someone who merely resembles a clinician - a different person who happens to share a first name is not a match unless the message treats them as a UCS clinician. If you are unsure whether a name is one of these ten, leave it out.\n\nReturn the matched full names in `mentioned_names`. If more than one clinician is referred to, return all of them. If none is, return an empty array.\n\nDo not judge the person's role, the sender's situation, or what the email is asking for. Do not infer a clinician who is not named. Return only the structured object."
+            }
+          ]
+        },
+        "batching": {
+          "batchSize": 50,
+          "delayBetweenBatches": 200
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -1472,
+        880
+      ],
+      "id": "b158d992-d219-4e91-b393-d765046f9df6",
+      "name": "Extract Clinician (LLM)",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1568,
+        1120
+      ],
+      "id": "847ee273-60db-410e-bb85-5916c162f1d2",
+      "name": "OpenAI Chat Model (Clinician)",
+      "customTelemetryTags": {},
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.5",
+          "mode": "list",
+          "cachedResultName": "gpt-5.5"
+        },
+        "builtInTools": {
+          "codeInterpreter": true
+        },
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          },
+          "reasoningEffort": "medium",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1408,
+        1104
+      ],
+      "id": "8f978e00-f0f2-4d05-b2a3-4bdd6a3b29b1",
+      "name": "OpenAI Chat Model (Clinician Fallback)",
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"mentioned_names\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"description\": \"Personal names of people referred to in SUBJECT or QUESTION. Empty array if none.\"\n    }\n  },\n  \"required\": [\n    \"mentioned_names\"\n  ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1280,
+        1104
+      ],
+      "id": "ee1b59d2-4b32-4003-bdc3-71e485393e7a",
+      "name": "Structured Output Parser (Clinician)"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "responseFormat": "json_object",
+          "timeout": 60000,
+          "maxRetries": 2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1200,
+        1312
+      ],
+      "id": "cbec1bb9-3dc7-4f2e-b010-d735c3192713",
+      "name": "OpenAI Chat Model (Clinician Auto-Fix)",
+      "credentials": {
+        "openAiApi": {
+          "id": "O9L64FICiHBtWr9K"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 0.8
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1008,
+        880
+      ],
+      "id": "688433b5-bcce-4d78-9d7f-cf0313a94889",
+      "name": "Delay - Clinician",
+      "webhookId": "7651b2db-d457-46a4-85ec-6df1669effc8"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -688,
+        1056
+      ],
+      "id": "bbdf968c-43c8-4935-91e1-25aa2c1c391a",
+      "name": "Merge Record + Clinician"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Resolve the clinician(s) this message refers to, if any.\n//\n// Items arrive from \"Merge Record + Clinician\" (combine-by-position): each\n// item carries BOTH the full record AND the chain output under `output`.\n// Reads only the item's own json -- no cross-node $('...').item reach-back,\n// matching \"Merge Bodies\" and \"Apply Consult\".\n//\n// NOTE: reads only the QUESTION-derived names. reply_text is never consulted\n// here -- for backfill rows the reply IS the forward, so using it would leak\n// the label the consult gate is trying to predict.\n//\n// MODE: \"Run Once for All Items\". Mapping is strictly 1:1 -- never filter here,\n// or the downstream combine-by-position merge will misalign.\n//\n// There is no clinician roster, so every extracted name is passed through --\n// all of them when several survive, comma-separated. This node no longer\n// decides WHICH name is the clinician; it only removes the sender's own name\n// and hands the rest to the gate. Consequence: names that are not clinicians\n// (a professor, a parent, a friend, or the student named in third-party mail)\n// will populate this field, so ASSIGNED_CLINICIAN is a weaker signal than its\n// name suggests and the gate prompt should treat it as \"a person is named\n// here\", not \"a clinician is assigned\".\n//\n// The distinct values this node emits ARE a roster draft: names recurring\n// across many senders are clinicians, one-offs are everyone else.\n\nconst TITLE_RE = /^\\s*(?:ms|mrs|mr|dr|miss|prof|professor)\\.?\\s+/i;\n\nconst norm = (s) => String(s || '')\n  .toLowerCase()\n  .replace(TITLE_RE, '')\n  .replace(/[^a-z\\s'-]/g, '')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\n// Name tokens recoverable from the sender's address. ~39% of senders use a\n// matric-style local part (e1518424@u.nus.edu) and yield nothing -- for those\n// this guard simply does not fire, which is why it is a filter and not a test.\n// The extraction prompt is the primary self-name defence; this is a backstop.\nconst senderTokens = (from) => {\n  const local = String(from || '').toLowerCase().split('@')[0] || '';\n  return new Set(\n    local.split(/[._\\-+]/).filter((t) => t.length > 2 && !/^\\d+$/.test(t))\n  );\n};\n\nreturn $input.all().map((item) => {\n  const j = item.json;\n  const parsed = (j.output && typeof j.output === 'object') ? j.output : {};\n  const names = Array.isArray(parsed.mentioned_names) ? parsed.mentioned_names : [];\n\n  const mine = senderTokens(j.question_from);\n\n  // Drop anything that is really the sender writing their own name.\n  const isSelf = (raw) => {\n    const parts = norm(raw).split(' ').filter(Boolean);\n    return parts.length > 0 && parts.every((p) => mine.has(p));\n  };\n\n  const seen = new Set();\n  const candidates = [];\n  for (const raw of names) {\n    const clean = String(raw || '').trim();\n    const key = norm(clean);\n    if (!key) continue;          // punctuation-only or empty\n    if (isSelf(clean)) continue; // the sender naming themselves\n    if (seen.has(key)) continue; // \"Ms Lim\" and \"Lim\" normalise alike\n    seen.add(key);\n    candidates.push(clean);\n  }\n\n  const { output, ...rest } = j;\n  return { json: { ...rest, assigned_clinician: candidates.length ? candidates.join(', ') : 'none' } };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -496,
+        1056
+      ],
+      "id": "1837eed5-2bc2-45f3-b8e5-5384f287e4cd",
+      "name": "Code - Derive assigned_clinician"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Parent": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Replies": {
+      "main": [
+        [
+          {
+            "node": "If Paired",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Outlook - Get Inbox Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outlook - Get Inbox Messages": {
+      "main": [
+        [
+          {
+            "node": "Filter - No Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Trim Inbox Msg": {
+      "main": [
+        [
+          {
+            "node": "Filter - Exclude Own Mailbox",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter - Exclude Own Mailbox": {
+      "main": [
+        [
+          {
+            "node": "If Has Inbox Hits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Has Inbox Hits": {
+      "main": [
+        [
+          {
+            "node": "Sort - Newest Inbound First",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pair Q -> A",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort - Newest Inbound First": {
+      "main": [
+        [
+          {
+            "node": "Limit - Keep Newest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit - Keep Newest": {
+      "main": [
+        [
+          {
+            "node": "If Forwarded Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pair Q -> A": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Paired": {
+      "main": [
+        [
+          {
+            "node": "Extract Bodies (LLM)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Record + Bodies",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clean Unpaired Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Bodies (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Delay - Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Extracted Bodies": {
+      "main": [
+        [
+          {
+            "node": "Merge Record + Bodies",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Delay - Extract": {
+      "main": [
+        [
+          {
+            "node": "Normalize Extracted Bodies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Record + Bodies": {
+      "main": [
+        [
+          {
+            "node": "Merge Bodies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Bodies": {
+      "main": [
+        [
+          {
+            "node": "Extract Clinician (LLM)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Record + Clinician",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Intent (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Delay - Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delay - Intent": {
+      "main": [
+        [
+          {
+            "node": "Merge Record + Intent",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Record + Intent": {
+      "main": [
+        [
+          {
+            "node": "Merge Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Intent": {
+      "main": [
+        [
+          {
+            "node": "Merge Paired + Unpaired",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Unpaired Reply": {
+      "main": [
+        [
+          {
+            "node": "Merge Paired + Unpaired",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Paired + Unpaired": {
+      "main": [
+        [
+          {
+            "node": "Derive sender_role",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Derive sender_role": {
+      "main": [
+        [
+          {
+            "node": "If Paired (Index)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Paired (Index)": {
+      "main": [
+        [
+          {
+            "node": "Azure AI Search - Insert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Collect All Records",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Build Embedding Batches": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Embeddings": {
+      "main": [
+        [
+          {
+            "node": "Attach Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach Embeddings": {
+      "main": [
+        [
+          {
+            "node": "Build Azure Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Azure Batches": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Azure AI Search Index",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Azure AI Search Index": {
+      "main": [
+        [
+          {
+            "node": "Check Index Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Extract)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Bodies (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Extract Fallback)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Bodies (LLM)",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser (Extract)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract Bodies (LLM)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Extract Auto-Fix)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser (Extract)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Intent)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Intent (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Intent Fallback)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Intent (LLM)",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser (Intent)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify Intent (LLM)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Intent Auto-Fix)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser (Intent)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect All Records": {
+      "main": [
+        [
+          {
+            "node": "Set - Pair Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Legacy DN Sender": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Get Question Headers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pair Q -> A",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Question Headers": {
+      "main": [
+        [
+          {
+            "node": "Set - Resolve SMTP From",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Resolve SMTP From": {
+      "main": [
+        [
+          {
+            "node": "Pair Q -> A",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Forwarded Question": {
+      "main": [
+        [
+          {
+            "node": "Code - Fwd Pre-clean HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If Legacy DN Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Fwd Pre-clean HTML": {
+      "main": [
+        [
+          {
+            "node": "Markdown - Fwd HTML to MD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Find Query)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Find Query Body (Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Find Query Fallback)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Find Query Body (Agent)",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser (Find Query)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Find Query Body (Agent)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Query Body (Agent)": {
+      "main": [
+        [
+          {
+            "node": "Delay - Query Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown - Fwd HTML to MD": {
+      "main": [
+        [
+          {
+            "node": "Find Query Body (Agent)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge - Record + Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delay - Query Body": {
+      "main": [
+        [
+          {
+            "node": "Merge - Record + Query",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If Legacy DN Sender (Fwd)": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Get Question Headers (Fwd)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pair Q -> A (Fwd)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Get Question Headers (Fwd)": {
+      "main": [
+        [
+          {
+            "node": "Set - Resolve SMTP From (Fwd)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pair Q -> A (Fwd)": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Resolve SMTP From (Fwd)": {
+      "main": [
+        [
+          {
+            "node": "Pair Q -> A (Fwd)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Azure AI Search - Insert",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Azure AI Search - Insert",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure AI Search - Insert": {
+      "main": [
+        [
+          {
+            "node": "Wait - Index Settle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Paired Records": {
+      "main": [
+        [
+          {
+            "node": "Collect All Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Record + Query": {
+      "main": [
+        [
+          {
+            "node": "If Query Extracted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Query Extracted": {
+      "main": [
+        [
+          {
+            "node": "Set - Body From Query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set - Body Fallback HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Body From Query": {
+      "main": [
+        [
+          {
+            "node": "Set - Cleanup (Extracted)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Body Fallback HTML": {
+      "main": [
+        [
+          {
+            "node": "Set - Cleanup (Fallback)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Cleanup (Extracted)": {
+      "main": [
+        [
+          {
+            "node": "If Legacy DN Sender (Fwd)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Cleanup (Fallback)": {
+      "main": [
+        [
+          {
+            "node": "If Legacy DN Sender (Fwd)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter - No Attachments": {
+      "main": [
+        [
+          {
+            "node": "Set - Trim Inbox Msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Find Query Auto-Fix)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser (Find Query)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Index Settle": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Find Unstamped Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Find Unstamped Docs": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Merge Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build Merge Batches": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Stamp reply_sent_at",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Stamp reply_sent_at": {
+      "main": [
+        [
+          {
+            "node": "Restore Paired Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Consult (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Delay - Consult",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delay - Consult": {
+      "main": [
+        [
+          {
+            "node": "Merge Record + Consult",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Record + Consult": {
+      "main": [
+        [
+          {
+            "node": "Apply Consult",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Consult": {
+      "main": [
+        [
+          {
+            "node": "If Consult Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Consult Required?": {
+      "main": [
+        [
+          {
+            "node": "Set - Intent Consult",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classify Intent (LLM)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Record + Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Intent Consult": {
+      "main": [
+        [
+          {
+            "node": "Merge Paired + Unpaired",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Consult)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Consult (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Consult Fallback)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Consult (LLM)",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser (Consult)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify Consult (LLM)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Consult Auto-Fix)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser (Consult)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Clinician (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Delay - Clinician",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delay - Clinician": {
+      "main": [
+        [
+          {
+            "node": "Merge Record + Clinician",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Record + Clinician": {
+      "main": [
+        [
+          {
+            "node": "Code - Derive assigned_clinician",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Derive assigned_clinician": {
+      "main": [
+        [
+          {
+            "node": "Classify Consult (LLM)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Record + Consult",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Clinician)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Clinician (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Clinician Fallback)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Clinician (LLM)",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser (Clinician)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract Clinician (LLM)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Clinician Auto-Fix)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser (Clinician)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "xhItDqP3xrYp0IM8",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "86bb4c0f-bdf0-4a13-941c-dda6b06bd304",
+  "meta": {
+    "instanceId": "54b3fc0b89ebb5a8eda839a4141a3886a669482e2ff64cecc2b490c0afdca8c2"
+  },
+  "nodeGroups": [],
+  "id": "1bQbRQNXR2udlw91",
+  "tags": []
+}

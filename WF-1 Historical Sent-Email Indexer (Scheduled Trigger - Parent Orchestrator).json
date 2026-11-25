@@ -1,0 +1,1234 @@
+{
+  "name": "WF-1 Historical Sent-Email Indexer (Scheduled Trigger - Parent Orchestrator)",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "NWxn8ubxQMA2dhHp",
+          "mode": "list",
+          "cachedResultName": "Indexer State",
+          "cachedResultUrl": "/projects/bJsPB6jFdTsGdksu/datatables/NWxn8ubxQMA2dhHp"
+        },
+        "returnAll": true
+      },
+      "id": "46bd91ef-0f54-4be7-a4aa-df60865ac864",
+      "name": "Get Last Run",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -2752,
+        736
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "NWxn8ubxQMA2dhHp",
+          "mode": "list",
+          "cachedResultName": "Indexer State",
+          "cachedResultUrl": "/projects/bJsPB6jFdTsGdksu/datatables/NWxn8ubxQMA2dhHp"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "LastRunTimestamp",
+              "condition": "isNotEmpty"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "LastRunTimestamp": "={{ $('Schedule Trigger').item.json.timestamp }}"
+          },
+          "matchingColumns": [
+            "LastRunTimestamp"
+          ],
+          "schema": [
+            {
+              "id": "LastRunTimestamp",
+              "displayName": "LastRunTimestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "c2f17c93-a079-4c89-8943-09b2c119ffde",
+      "name": "Update Last Run",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -2016,
+        576
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -5696,
+        736
+      ],
+      "id": "ed69e7a0-61a5-40e8-a5a0-efa1d2d82113",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f9d07bc2-d59f-483f-adf9-1e05a9bfcc8b",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1536,
+        736
+      ],
+      "id": "70a06969-81f7-4a3f-840a-b169289ded93",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "folderMessage",
+        "folderId": {
+          "__rl": true,
+          "value": "AAMkADY3ODI1MjQwLWI0NjgtNDVmZC1hMzk3LTExNTExZGE3MWE4YgAuAAAAAAAGcm-stAztQqGe0wx7B9GkAQC9rr79--jPQapehbArjLMwAAAAAAEJAAA=",
+          "mode": "list",
+          "cachedResultName": "Sent Items",
+          "cachedResultUrl": "https://outlook.office365.com/mail/AAMkADY3ODI1MjQwLWI0NjgtNDVmZC1hMzk3LTExNTExZGE3MWE4YgAuAAAAAAAGcm%2FstAztQqGe0wx7B9GkAQC9rr79%2F%2FjPQapehbArjLMwAAAAAAEJAAA%3D"
+        },
+        "returnAll": true,
+        "output": "raw",
+        "filtersUI": {
+          "values": {
+            "filters": {
+              "custom": "=sentDateTime ge {{ $('Backfill Window').first().json.BACKFILL_START }} and sentDateTime lt {{ $('Backfill Window').first().json.BACKFILL_END }}",
+              "hasAttachments": false
+            }
+          }
+        },
+        "options": {}
+      },
+      "id": "22d84afc-6738-4add-bd84-0c144dcc6134",
+      "name": "Outlook - List Sent Replies(Time Difference)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        -1792,
+        736
+      ],
+      "webhookId": "d3de35ae-4c07-4b7f-ac63-a78045b5357b",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "WteKykd6ryTDfALB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9cee2051-d3a9-4537-ab7d-a50720cac7d2",
+              "name": "folder_name",
+              "value": "HWB UCS AI-Powered Email Assistant",
+              "type": "string"
+            },
+            {
+              "id": "90a3e5ff-cb97-4144-8191-798ff2a3898a",
+              "name": "child_folder_name",
+              "value": "={{ 'Email Ingestion Export ' + $('Schedule Trigger').item.json.timestamp.toDateTime().toFormat('yyyy-LL-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a8d71495-988d-4aa5-8231-de5f3c9d7a80",
+      "name": "Define Folder Name",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4896,
+        736
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "search",
+        "query": "={{ $json.folder_name }}"
+      },
+      "id": "7ade876a-f669-4f58-9863-0240068a9e6d",
+      "name": "OneDrive - Search Folder",
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1.1,
+      "position": [
+        -4688,
+        736
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "gZmgDZnxgEjLDQ68"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Did the search return a folder whose name EXACTLY matches our target?\nconst target = ($('Define Folder Name').first().json.folder_name || '').trim().toLowerCase();\nconst items = $input.all().map(i => i.json || {});\nconst match = items.find(r => String(r.name || '').trim().toLowerCase() === target);\nif (match) {\n  return [{ json: { found: true, folder_id: match.id, folder_name: match.name } }];\n}\nreturn [{ json: { found: false, folder_name: $('Define Folder Name').first().json.folder_name } }];"
+      },
+      "id": "70a9d898-5b57-4927-a154-821146125eec",
+      "name": "Check Folder Exists",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4496,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bf3cbf0e-5916-42b2-867b-1a9010bc3860",
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d8898dd0-0fb3-461f-8f98-7c522a25cd3c",
+      "name": "IF Folder Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -4304,
+        752
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Both branches land here: existing folder carries folder_id, a freshly\n// created folder carries id. Emit one consistent folder_id downstream.\nconst j = $input.first().json || {};\nconst folder_id = j.folder_id || j.id || '';\nconst folder_name = j.folder_name || j.name || '';\nreturn [{ json: { folder_id, folder_name } }];"
+      },
+      "id": "c6590e5c-be98-4beb-a10b-5b4ebbbf04f7",
+      "name": "Resolve Folder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3920,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "={{ $('Define Folder Name').first().json.folder_name }}",
+        "options": {}
+      },
+      "id": "2003d165-99a7-4c56-9a06-8ad3cae331dc",
+      "name": "OneDrive - Create Folder",
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1.1,
+      "position": [
+        -4096,
+        864
+      ],
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "gZmgDZnxgEjLDQ68"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "={{ $json.folder_name }}",
+        "options": {
+          "parentFolderId": "={{ $('Resolve Folder ID').first().json.folder_id }}"
+        }
+      },
+      "id": "f6a6f6a2-c6d8-4188-85c9-04ab1666495f",
+      "name": "OneDrive - Create Email Ingestion Folder",
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1.1,
+      "position": [
+        -3136,
+        864
+      ],
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "gZmgDZnxgEjLDQ68"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "folderId": "={{ $json.folder_id }}"
+      },
+      "id": "f722dfe6-4429-4377-80ac-33cf1a5111b6",
+      "name": "OneDrive - Search Child Folder",
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1.1,
+      "position": [
+        -3728,
+        736
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "gZmgDZnxgEjLDQ68"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Did the search return a folder whose name EXACTLY matches our target?\nconst target = ($('Define Folder Name').first().json.child_folder_name || '').trim().toLowerCase();\nconst items = $input.all().map(i => i.json || {});\nconst match = items.find(r => String(r.name || '').trim().toLowerCase() === target);\nif (match) {\n  return [{ json: { found: true, folder_id: match.id, folder_name: match.name } }];\n}\nreturn [{ json: { found: false, folder_name: $('Define Folder Name').first().json.child_folder_name } }];"
+      },
+      "id": "0dfdc94a-9713-478a-b713-98381cd34a33",
+      "name": "Check Child Folder Exists",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3536,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Both branches land here: existing folder carries folder_id, a freshly\n// created folder carries id. Emit one consistent folder_id downstream.\nconst j = $input.first().json || {};\nconst child_folder_id = j.folder_id || j.id || '';\nconst child_folder_name = j.folder_name || j.name || '';\nreturn [{ json: { child_folder_id, child_folder_name } }];"
+      },
+      "id": "b83cafae-1e93-44c1-8753-da5035e6b1e0",
+      "name": "Resolve Child Folder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2928,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bf3cbf0e-5916-42b2-867b-1a9010bc3860",
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6343306c-91c7-4e8b-ac5a-f6d8eb1ff0ca",
+      "name": "IF Child Folder Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3344,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "=email_ingestion_{{ $('Backfill Window').first().json.BACKFILL_START.split('T')[0] }}_to_{{ $('Backfill Window').first().json.BACKFILL_END.split('T')[0] }}.xlsx",
+        "parentId": "={{ $('Resolve Child Folder ID').first().json.child_folder_id }}",
+        "binaryData": true
+      },
+      "id": "05b220ef-0fb8-40db-8e12-e8b52da9b2c0",
+      "name": "OneDrive - Upload CSV",
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        800
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "gZmgDZnxgEjLDQ68"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "id": "2d434289-7e95-4771-a699-1c0579ad5b52",
+      "name": "Convert to XLSX",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        800
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0e94c12d-0572-456d-b70d-6e31b945926d",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "07f21177-46e5-4577-b0d3-b8a590eb519d",
+              "name": "conversationId",
+              "type": "string",
+              "value": "={{ $json.conversationId }}"
+            },
+            {
+              "id": "1c5e378c-9a5c-4166-8d1b-3b6cf88edea8",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "id": "60b2d14f-ce3c-4591-8a54-a3c7ce0b0384",
+              "name": "from",
+              "type": "object",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "id": "693e3f4f-79b2-4f4e-a377-81a5dbafd40c",
+              "name": "sentDateTime",
+              "type": "string",
+              "value": "={{ $json.sentDateTime }}"
+            },
+            {
+              "id": "81c2f0fb-38da-41ea-80bd-4735ac79962a",
+              "name": "createdDateTime",
+              "type": "string",
+              "value": "={{ $json.createdDateTime }}"
+            },
+            {
+              "id": "9595b20b-f13d-46c7-b90e-92e189abe25a",
+              "name": "body",
+              "type": "object",
+              "value": "={{ $json.body }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "82b8d041-95bc-4ae9-8a29-f2e34a7293a5",
+      "name": "Set - Trim Sent Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1264,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Seed start from persisted LastRunTimestamp (fallback to a floor), end = now.\nconst rows = $items('Get Last Run').map(i => i.json);\nlet seed = null;\nfor (const r of rows) {\n  if (r && r.LastRunTimestamp) { seed = r.LastRunTimestamp; break; }\n}\nconst startDate = seed ? new Date(seed) : new Date('1900-01-01T00:00:00Z');\nconst now = new Date($('Schedule Trigger').first().json.timestamp);\n\nconst windows = [];\nlet s = new Date(startDate);\nwhile (s < now) {\n  // END = START + 1 year (rule 1); clamp last window to 'now'\n  let e = new Date(s);\n  e.setUTCDate(e.getUTCDate() + 15);\n  // e.setUTCMonth(e.getUTCMonth() + 1);\n  if (e > now) e = new Date(now);\n  windows.push({\n    BACKFILL_START: s.toISOString(),\n    BACKFILL_END: e.toISOString()\n  });\n  // next START = this END (rule 3)\n  s = new Date(e);\n}\n\n// If already up to date, emit nothing so the loop's done-branch runs the tail once.\nreturn windows.map(w => ({ json: w }));"
+      },
+      "id": "3172077d-c2a5-4a85-a3b7-453d4b7d12ee",
+      "name": "Build Year Windows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2544,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c382ebda-c2a2-4ab8-8c46-6fe2dcca7327",
+      "name": "Loop Over Years",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2272,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bw-s-1",
+              "name": "BACKFILL_START",
+              "type": "string",
+              "value": "={{ $json.BACKFILL_START }}"
+            },
+            {
+              "id": "bw-e-2",
+              "name": "BACKFILL_END",
+              "type": "string",
+              "value": "={{ $json.BACKFILL_END }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b871e35b-a404-4d1a-be01-7ce7c4931057",
+      "name": "Backfill Window",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2016,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cap-0001",
+              "name": "conversationId",
+              "type": "string",
+              "value": "={{ ($json.conversationId ?? '').toString().length > 32000 ? ($json.conversationId.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.conversationId ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0003",
+              "name": "question_subject",
+              "type": "string",
+              "value": "={{ ($json.question_subject ?? '').toString().length > 32000 ? ($json.question_subject.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.question_subject ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0004",
+              "name": "question_from",
+              "type": "string",
+              "value": "={{ ($json.question_from ?? '').toString().length > 32000 ? ($json.question_from.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.question_from ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0005",
+              "name": "question_received_at",
+              "type": "string",
+              "value": "={{ ($json.question_received_at ?? '').toString().length > 32000 ? ($json.question_received_at.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.question_received_at ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0006",
+              "name": "text",
+              "type": "string",
+              "value": "={{ ($json.text ?? '').toString().length > 32000 ? ($json.text.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.text ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0008",
+              "name": "reply_subject",
+              "type": "string",
+              "value": "={{ ($json.reply_subject ?? '').toString().length > 32000 ? ($json.reply_subject.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.reply_subject ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0009",
+              "name": "reply_text",
+              "type": "string",
+              "value": "={{ ($json.reply_text ?? '').toString().length > 32000 ? ($json.reply_text.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.reply_text ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0010",
+              "name": "reply_sent_at",
+              "type": "string",
+              "value": "={{ ($json.reply_sent_at ?? '').toString().length > 32000 ? ($json.reply_sent_at.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.reply_sent_at ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0011",
+              "name": "reply_from",
+              "type": "string",
+              "value": "={{ ($json.reply_from ?? '').toString().length > 32000 ? ($json.reply_from.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.reply_from ?? '').toString() }}"
+            },
+            {
+              "id": "cap-0013",
+              "name": "sender_role",
+              "type": "string",
+              "value": "={{ ($json.sender_role ?? '').toString().length > 32000 ? ($json.sender_role.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.sender_role ?? '').toString() }}"
+            },
+            {
+              "id": "f2bdbec4-d9d0-4a06-85b1-7d5e0aefa34c",
+              "name": "intent",
+              "value": "={{ ($json.intent ?? '').toString().length > 32000 ? ($json.intent.toString().slice(0, 32000) + ' …[truncated for log]') : ($json.intent ?? '').toString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4bc32c20-258f-4f62-907b-b658e7d8d2ee",
+      "name": "Set - Cap Log Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -640,
+        800
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "1bQbRQNXR2udlw91",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/1bQbRQNXR2udlw91",
+          "cachedResultName": "Office of the President - HWB UCS AI-Powered Email Assistant — WF-1b · Reply Processor (Extract → Classify → Embed)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "4e3cd6b4-6d59-4193-a3a2-3e91b7c88e19",
+      "name": "Process Reply (Sub-workflow)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -960,
+        784
+      ],
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "maxTries": 2,
+      "customTelemetryTags": {}
+    },
+    {
+      "parameters": {
+        "url": "={{$vars.AZURE_SEARCH_ENDPOINT}}/indexes/{{$vars.AZURE_SEARCH_INDEX}}?api-version={{$vars.AZURE_SEARCH_API_VERSION}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "azureAiSearchApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "e051efcc-0f8b-43c7-bb2e-683165f0c7f5",
+      "name": "Check Index Exists",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5488,
+        736
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "credentials": {
+        "azureAiSearchApi": {
+          "id": "CBgKIjP2hrq577zE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d1111111-1111-4111-8111-111111111002",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "46081aa9-de2d-48fe-a8ba-2c7daf81e069",
+      "name": "Index Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -5280,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{$vars.AZURE_SEARCH_ENDPOINT}}/indexes/{{$vars.AZURE_SEARCH_INDEX}}?api-version={{$vars.AZURE_SEARCH_API_VERSION}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "azureAiSearchApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"{{$vars.AZURE_SEARCH_INDEX}}\",\n  \"defaultScoringProfile\": \"boostRecency\",\n  \"fields\": [\n    {\n      \"name\": \"id\",\n      \"type\": \"Edm.String\",\n      \"key\": true,\n      \"filterable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"conversationId\",\n      \"type\": \"Edm.String\",\n      \"filterable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"question_received_at\",\n      \"type\": \"Edm.DateTimeOffset\",\n      \"filterable\": true,\n      \"sortable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"text\",\n      \"type\": \"Edm.String\",\n      \"searchable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"reply_subject\",\n      \"type\": \"Edm.String\",\n      \"searchable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"reply_text\",\n      \"type\": \"Edm.String\",\n      \"searchable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"reply_sent_at\",\n      \"type\": \"Edm.DateTimeOffset\",\n      \"filterable\": true,\n      \"sortable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"sender_role\",\n      \"type\": \"Edm.String\",\n      \"filterable\": true,\n      \"facetable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"intent\",\n      \"type\": \"Edm.String\",\n      \"filterable\": true,\n      \"facetable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"contentVector\",\n      \"type\": \"Collection(Edm.Single)\",\n      \"searchable\": true,\n      \"retrievable\": false,\n      \"stored\": false,\n      \"dimensions\": 3072,\n      \"vectorSearchProfile\": \"ucs-vector-profile\"\n    }\n  ],\n  \"scoringProfiles\": [\n    {\n      \"name\": \"boostRecency\",\n      \"functionAggregation\": \"sum\",\n      \"functions\": [\n        {\n          \"type\": \"freshness\",\n          \"fieldName\": \"reply_sent_at\",\n          \"boost\": 5,\n          \"interpolation\": \"quadratic\",\n          \"freshness\": {\n            \"boostingDuration\": \"P1095D\"\n          }\n        }\n      ]\n    }\n  ],\n  \"vectorSearch\": {\n    \"algorithms\": [\n      {\n        \"name\": \"ucs-hnsw\",\n        \"kind\": \"hnsw\",\n        \"hnswParameters\": {\n          \"m\": 4,\n          \"efConstruction\": 400,\n          \"efSearch\": 500,\n          \"metric\": \"cosine\"\n        }\n      }\n    ],\n    \"profiles\": [\n      {\n        \"name\": \"ucs-vector-profile\",\n        \"algorithm\": \"ucs-hnsw\"\n      }\n    ]\n  },\n  \"semantic\": {\n    \"configurations\": [\n      {\n        \"name\": \"ucs-semantic-config\",\n        \"rankingOrder\": \"BoostedRerankerScore\",\n        \"prioritizedFields\": {\n          \"titleField\": {\n            \"fieldName\": \"reply_subject\"\n          },\n          \"prioritizedContentFields\": [\n            {\n              \"fieldName\": \"text\"\n            },\n            {\n              \"fieldName\": \"reply_text\"\n            }\n          ],\n          \"prioritizedKeywordsFields\": [\n            {\n              \"fieldName\": \"intent\"\n            },\n            {\n              \"fieldName\": \"sender_role\"\n            }\n          ]\n        }\n      }\n    ]\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "a942505f-edff-4a58-aa66-b0d234455bc2",
+      "name": "Create Search Index",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5088,
+        848
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "credentials": {
+        "azureAiSearchApi": {
+          "id": "CBgKIjP2hrq577zE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3aa03cfb-4ce9-4cdd-8364-2c8c613df2a9",
+              "name": "id",
+              "value": "={{ $('OneDrive - Search Child Folder').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "d1c25866-ce30-4704-91aa-aa3617a78364",
+              "name": "createdDateTime",
+              "value": "={{ $('OneDrive - Search Child Folder').item.json.createdDateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "4a1e0f1b-cc76-4307-b29d-bce7ed75863b",
+              "name": "lastModifiedDateTime",
+              "value": "={{ $('OneDrive - Search Child Folder').item.json.lastModifiedDateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "c5ee00c3-944c-48c0-a68f-9e1518d76274",
+              "name": "name",
+              "value": "={{ $('OneDrive - Search Child Folder').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "074fe311-c73d-45d2-9db0-171023926395",
+              "name": "size",
+              "value": "={{ $('OneDrive - Search Child Folder').item.json.size }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        800
+      ],
+      "id": "9dca57da-0d89-4542-985b-1467169b22af",
+      "name": "Set Fields - Reduce Payload"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{$vars.AZURE_SEARCH_ENDPOINT}}/indexes/{{$vars.AZURE_SEARCH_INDEX}}?api-version={{$vars.AZURE_SEARCH_API_VERSION}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "azureAiSearchApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"{{$vars.AZURE_SEARCH_INDEX}}\",\n  \"defaultScoringProfile\": \"boostRecency\",\n  \"fields\": [\n    {\n      \"name\": \"id\",\n      \"type\": \"Edm.String\",\n      \"key\": true,\n      \"filterable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"content\",\n      \"type\": \"Edm.String\",\n      \"searchable\": true,\n      \"filterable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"reply_sent_at\",\n      \"type\": \"Edm.DateTimeOffset\",\n      \"filterable\": true,\n      \"sortable\": true,\n      \"retrievable\": true\n    },\n    {\n      \"name\": \"content_vector\",\n      \"type\": \"Collection(Edm.Single)\",\n      \"searchable\": true,\n      \"retrievable\": false,\n      \"stored\": false,\n      \"dimensions\": 3072,\n      \"vectorSearchProfile\": \"ucs-vector-profile\"\n    },\n    {\n      \"name\": \"metadata\",\n      \"type\": \"Edm.ComplexType\",\n      \"fields\": [\n        {\n          \"name\": \"source\",\n          \"type\": \"Edm.String\",\n          \"filterable\": true,\n          \"retrievable\": true\n        },\n        {\n          \"name\": \"attributes\",\n          \"type\": \"Collection(Edm.ComplexType)\",\n          \"fields\": [\n            {\n              \"name\": \"key\",\n              \"type\": \"Edm.String\",\n              \"searchable\": true,\n              \"filterable\": true,\n              \"retrievable\": true\n            },\n            {\n              \"name\": \"value\",\n              \"type\": \"Edm.String\",\n              \"searchable\": true,\n              \"filterable\": true,\n              \"retrievable\": true\n            }\n          ]\n        }\n      ]\n    }\n  ],\n  \"scoringProfiles\": [\n    {\n      \"name\": \"boostRecency\",\n      \"functionAggregation\": \"sum\",\n      \"functions\": [\n        {\n          \"type\": \"freshness\",\n          \"fieldName\": \"reply_sent_at\",\n          \"boost\": 5,\n          \"interpolation\": \"quadratic\",\n          \"freshness\": {\n            \"boostingDuration\": \"P730D\"\n          }\n        }\n      ]\n    }\n  ],\n  \"vectorSearch\": {\n    \"algorithms\": [\n      {\n        \"name\": \"ucs-hnsw\",\n        \"kind\": \"hnsw\",\n        \"hnswParameters\": {\n          \"m\": 4,\n          \"efConstruction\": 400,\n          \"efSearch\": 500,\n          \"metric\": \"cosine\"\n        }\n      }\n    ],\n    \"profiles\": [\n      {\n        \"name\": \"ucs-vector-profile\",\n        \"algorithm\": \"ucs-hnsw\"\n      }\n    ]\n  },\n  \"semantic\": {\n    \"configurations\": [\n      {\n        \"name\": \"ucs-semantic-config\",\n        \"rankingOrder\": \"BoostedRerankerScore\",\n        \"prioritizedFields\": {\n          \"prioritizedContentFields\": [\n            {\n              \"fieldName\": \"content\"\n            }\n          ]\n        }\n      }\n    ]\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "36d1105a-73a8-437a-aaa3-2ddf9613ccff",
+      "name": "Create Search Index1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5088,
+        1040
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "credentials": {
+        "azureAiSearchApi": {
+          "id": "CBgKIjP2hrq577zE"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Last Run": {
+      "main": [
+        [
+          {
+            "node": "Build Year Windows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Index Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Set - Trim Sent Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Years",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outlook - List Sent Replies(Time Difference)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Folder Name": {
+      "main": [
+        [
+          {
+            "node": "OneDrive - Search Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OneDrive - Search Folder": {
+      "main": [
+        [
+          {
+            "node": "Check Folder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Folder Exists": {
+      "main": [
+        [
+          {
+            "node": "IF Folder Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Folder Exists?": {
+      "main": [
+        [
+          {
+            "node": "Resolve Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OneDrive - Create Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Folder ID": {
+      "main": [
+        [
+          {
+            "node": "OneDrive - Search Child Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OneDrive - Create Folder": {
+      "main": [
+        [
+          {
+            "node": "Resolve Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OneDrive - Create Email Ingestion Folder": {
+      "main": [
+        [
+          {
+            "node": "Resolve Child Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OneDrive - Search Child Folder": {
+      "main": [
+        [
+          {
+            "node": "Check Child Folder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Child Folder Exists": {
+      "main": [
+        [
+          {
+            "node": "IF Child Folder Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Child Folder Exists?": {
+      "main": [
+        [
+          {
+            "node": "Resolve Child Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OneDrive - Create Email Ingestion Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Child Folder ID": {
+      "main": [
+        [
+          {
+            "node": "Get Last Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OneDrive - Upload CSV": {
+      "main": [
+        [
+          {
+            "node": "Set Fields - Reduce Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to XLSX": {
+      "main": [
+        [
+          {
+            "node": "OneDrive - Upload CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Trim Sent Reply": {
+      "main": [
+        [
+          {
+            "node": "Process Reply (Sub-workflow)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Year Windows": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Years",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Years": {
+      "main": [
+        [
+          {
+            "node": "Update Last Run",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Backfill Window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Backfill Window": {
+      "main": [
+        [
+          {
+            "node": "Outlook - List Sent Replies(Time Difference)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Cap Log Fields": {
+      "main": [
+        [
+          {
+            "node": "Convert to XLSX",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Reply (Sub-workflow)": {
+      "main": [
+        [
+          {
+            "node": "Set - Cap Log Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Index Exists": {
+      "main": [
+        [
+          {
+            "node": "Index Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Index Exists?": {
+      "main": [
+        [
+          {
+            "node": "Define Folder Name",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Search Index1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Search Index": {
+      "main": [
+        []
+      ]
+    },
+    "Set Fields - Reduce Payload": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Years",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Search Index1": {
+      "main": [
+        [
+          {
+            "node": "Define Folder Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "xhItDqP3xrYp0IM8",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "versionId": "09000030-20d2-4f76-9105-aa24fe9781b3",
+  "meta": {
+    "instanceId": "54b3fc0b89ebb5a8eda839a4141a3886a669482e2ff64cecc2b490c0afdca8c2"
+  },
+  "nodeGroups": [],
+  "id": "ijNHNeR6wANaByx9",
+  "tags": []
+}
